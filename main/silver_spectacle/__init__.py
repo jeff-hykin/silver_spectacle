@@ -1,1 +1,1 @@
-from silver_spectacle.silver_spectacle import *
+from silver_spectacle.library import *
