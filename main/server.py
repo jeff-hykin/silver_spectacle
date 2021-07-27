@@ -16,7 +16,8 @@ args = parser.parse_args()
 # 
 app = web.Application()
 routes = web.RouteTableDef()
-sio = socketio.AsyncServer(); sio.attach(app) 
+sio = socketio.AsyncServer(); sio.attach(app)
+display_requests = "{}"
 
 @routes.get('/')
 async def index(request): 
@@ -41,8 +42,11 @@ async def index(request):
         </body>
         <script>
             const socket = io()
-            socket.on("message", (message)=>{
+            // this is initilized so that, if a page is opened after the fact, it will still have the data available
+            displayRequests = JSON.parse(`"""+display_requests+r"""`)
+            socket.on("update", (message)=>{
                 console.log("message:", message)
+                displayRequests = {...displayRequests, ...JSON.parse(message)}
             })
         </script>
         </html>
@@ -52,13 +56,12 @@ async def index(request):
 async def ping(request):
     return web.Response(text="pong")
 
-@routes.post('/post')
-async def send_message(request):
-    json = await request.text()
-    print('json = ', json)
-    await sio.emit('message', json)
+@routes.post('/update')
+async def update(request):
+    global display_requests
+    display_requests = await request.text()
+    await sio.emit('update', display_requests)
     return web.Response(text="null")
-
 
 # 
 # start server
