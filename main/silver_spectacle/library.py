@@ -92,7 +92,7 @@ def ensure_server_is_running():
     else:
         return True
 
-def display(data, component):
+def display(system, *arguments):
     global _settings
     global _display_data
     port = _settings["port"]
@@ -100,8 +100,8 @@ def display(data, component):
     now = time.time()
     _display_data[str(int(now * 1000000000))] = {
         "time": now,
-        "data": data,
-        "component": component,
+        "system": system,
+        "arguments": arguments,
     }
     
     # send data and method to 
