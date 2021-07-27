@@ -42,14 +42,15 @@ async def index(request):
         <script>
             const socket = io()
             socket.on("message", (message)=>{
-                console.log("hello", message)
+                console.log("message:", message)
             })
-            function sendMsg() {
-                socket.emit("message", "HELLO WORLD");
-            }    
         </script>
         </html>
     """, content_type='text/html')
+
+@routes.get('/ping')
+async def ping(request):
+    return web.Response(text="pong")
 
 @routes.post('/post')
 async def send_message(request):
@@ -57,6 +58,7 @@ async def send_message(request):
     print('json = ', json)
     await sio.emit('message', json)
     return web.Response(text="null")
+
 
 # 
 # start server
