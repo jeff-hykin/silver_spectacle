@@ -32,26 +32,26 @@ Open the address in your browser and you'll see these <br>
 
 ## What kind of features does it have?
 
-- Works everywhere: WSL, Docker, and ssh over VPN's. No more 5 page tutorials trying to get X11 forwarding to function
-- Multiple plots are effortless: no more complex cramming of graphs together, or accidentally x-ing out that one graph you meant to take a screenshot of. Just call the function and forget about it, because you'll always be able to scroll down and find the graph later.
-- Non-blocking: no more hacky workarounds or confusion about how to display data while performing additional computations in the background. `ss.display` is non-blocking by default, so use it without worrying if your overnight computation is going to stop in the middle because its waiting for user input.
-- Interactive: I'm not saying its impossible for tools like matplotlib to be interactive, but lets just say nobody is doing it unless they have an unusual level of determination. Silver Spectacles are interactive almost by default.
-- Independent runtime: your python program can crash, and as long as you were viewing the data in a browser, your graphs will still be there.
+- **Works everywhere**: WSL, Docker, and ssh over VPN's. No more 5 page tutorials trying to get X11 forwarding to function
+- **Multiple plots are effortless**: no more complex cramming of graphs together, or accidentally x-ing out that one graph you meant to take a screenshot of. Just call the function and forget about it, because you'll always be able to scroll down and find the graph later.
+- **Non-blocking**: no more hacky workarounds to get both code to display, and a graph to update at the same time. `ss.display` is non-blocking by default, so use it without worrying if your overnight computation is going to stop in the middle because its waiting for user input.
+- **Interactive**: I'm not saying its impossible for tools like matplotlib to be interactive, but lets just say nobody is doing it unless they have an unusual level of determination. Silver Spectacles are interactive almost by default.
+- **Independent runtime**: your python program can crash, but as long as you dont kill the server your graphs will still be there.
 
 ## What kind of plots can it do?
 
-Well one of the libraries it includes is [Chart JS](https://www.chartjs.org/docs/latest/general/data-structures.html). So any of the examples there, such as this [line chart](https://www.chartjs.org/docs/latest/charts/line.html) can be converted like so:
-<br>
+If [Chart JS](https://www.chartjs.org/docs/latest/general/data-structures.html) has it, then it is available in this library.
+- Go to [their website](https://www.chartjs.org/docs/latest/general/data-structures.html)
+- Find an example, such as [this line chart](https://www.chartjs.org/docs/latest/charts/line.html)
+- Then do a near 1-to-1 mapping to python
 
-Take a look at their `setup` tab
-
-<img src="/documentation/images/setup_tab.png" alt="description">
+For example, take a look at their `setup` tab
+![setup_tab](https://user-images.githubusercontent.com/17692058/127252596-90333d78-8cd1-43ee-8764-c92ff90697b6.png)
 
 Look at the `config` tab
-
-<img src="/documentation/images/config_tab.png" alt="description">
-
+![config_tab](https://user-images.githubusercontent.com/17692058/127252590-8542b31b-4f86-44f6-858a-0a89cfdc5fe0.png)
 <br>
+
 Then make a *very* similar structure with a python dictionary
 
 ```python
