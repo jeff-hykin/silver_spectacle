@@ -77,8 +77,8 @@ ss.display("chartjs", config)
 - **Works everywhere**: WSL, Docker, and ssh over VPN's. No more 5 page tutorials trying to get X11 forwarding to function
 - **Multiple plots are effortless**: no more complex cramming of graphs together, or accidentally x-ing out that one graph you meant to take a screenshot of. Just call the function and forget about it, because you'll always be able to scroll down and find the graph later.
 - **Non-blocking**: no more hacky workarounds to get both code to execute, and a graph to update at the same time. `ss.display` is non-blocking by default, so use it without worrying if your overnight computation is going to stop in the middle because its waiting for user input.
-- **Interactive**: I'm not saying its impossible for tools like matplotlib to be interactive, but lets just say nobody is doing it unless they have an unusual level of determination. Silver Spectacles are interactive almost by default.
 - **Independent runtime**: your python program can crash, but as long as you dont kill the server your graphs will still be there.
+- **Interactive**: I'm not saying its impossible for tools like matplotlib to have custom interactivity, but lets just say nobody is doing it unless they have an unusual level of determination. Silver Spectacles let's you add custom buttons, effects, etc.
 
 ## Documentation?
 
@@ -86,7 +86,7 @@ There is some additional documentation below for fully fledged customization of 
 
 ## Whats the status of the library?
 
-There are many planned features, and this library is under active development, and as not been optimized. However, the API is stable, and effectively all changes will only be adding tools to the toolbox. Some of the planned features are small, like a button for clearing the screen of existing graphs, or options to save all the data as a file. Other features will be a major addition, like theming, notifications for errors, and integration with other major Javascript charts/graphing libraries. Development probably will be sporadic, PR's are welcome.
+There are many planned features. This library is under active development, and has not been optimized. However, the API is stable, and effectively all changes will only be adding tools to the toolbox. Some of the planned features are small, like a button for clearing the screen of existing graphs, or options to save all the data as a file. Other features will be a major addition, like theming, notifications for errors, and integration with other major Javascript charts/graphing libraries. Development probably will be sporadic, PR's are welcome.
 
 ## How can I contribute?
 
@@ -105,7 +105,7 @@ There are many planned features, and this library is under active development, a
 - The server does two things
     1. It embeds this data into the html as JSON data. This way any newly-opened pages already have all the available data. In terms of files, the server only serves the one html+js+css file.
     2. When the backend gets a http display request from the python process, it uses socket.io to notify all existing browser windows about the new data. 
-- This seems trivial, but it is important: exising browswer windows do not replace existing data with incoming data. That would be bad because browser windows can be open longer than both the server process or python process. So, the browser window can have more information than the server does. For that reason, all data is timestamped and stored inside the global `displayRequests` variable. Those timestamps are used as keys, allowing the browser windows to simply merge incoming data without duplication and without loosing old information.
+- This seems trivial, but it is important: exising browser windows do not replace existing data with incoming data. That would be bad because browser windows can be open longer than both the server process or python process. So, the browser window can have more information than the server does. For that reason, all data is timestamped and stored inside the global `displayRequests` variable. Those timestamps are used as keys, allowing the browser windows to simply merge incoming data without duplication and without loosing old information.
 - On the graphical side, the browser iterates over all the display commands, creating a chart for each one, wrapping the chart in a thin container, and placing it into a vertical list. This vertical list is displayed in reverse; the most-recent graph is at the top.
 - Thats it!
 
