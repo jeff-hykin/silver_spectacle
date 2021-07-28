@@ -5,7 +5,7 @@ with open("../README.md", "r") as file_handle:
  
 setuptools.setup(
     name='silver_spectacle',
-    version='0.1.2',
+    version='0.1.5',
     description="An easier way to display data",
     url='https://github.com/jeff-hykin/silver_spectacle',
     author='Jeff Hykin',
@@ -13,7 +13,9 @@ setuptools.setup(
     license='MIT',
     packages=['silver_spectacle'],
     install_requires=[
-        ""
+        'aiohttp >= 3.7.4',
+        'python-socketio >= 5.3.0',
+        'requests >= 2.26.0',
     ],
     classifiers=[
         # 'Development Status :: 5 - Production/Stable',

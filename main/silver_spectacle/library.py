@@ -69,14 +69,14 @@ def ensure_server_is_running():
     if not result or result.text != '"pong"':
         _process = subprocess.Popen(
             [
-                "python",
+                sys.executable,
                 os.path.join(os.path.dirname(__file__), "server.py"),
                 "--port", str(_settings["port"]),
                 "--custom-css", _settings["custom_css"],
                 "--custom-js", _settings["custom_js"],
             ],
             stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
+            # stderr=subprocess.STDOUT,
         )
         start = time.time()
         while not result or result.text != '"pong"':
@@ -86,6 +86,7 @@ def ensure_server_is_running():
                 print(f"[silver_spectacle] however after waiting {server_start_timeout} seconds ('server_start_timeout')",  file=sys.stderr)
                 print(f"[silver_spectacle] the server failed to respond to ping requests",  file=sys.stderr)
                 print(f"[silver_spectacle] no error will be thrown, but output likely will not be displayed",  file=sys.stderr)
+                print(f"[silver_spectacle] {_process}",  file=sys.stderr)
                 print(f"\n",  file=sys.stderr)
                 break
             try:
