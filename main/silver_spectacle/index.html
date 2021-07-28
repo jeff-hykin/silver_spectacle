@@ -1,6 +1,4 @@
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
+
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <script>
@@ -505,6 +503,8 @@
             <style>
                 :root {
                     --font-color: black;
+                    --light-red: #f07178;
+                    --solid-red: #ff5572;
                     --very-background: whitesmoke;
                     --card-background: white;
                 }
@@ -548,16 +548,51 @@
                 .card:hover {
                     box-shadow: 0 24px 38px 3px rgba(0,0,0,0.14),0 9px 46px 8px rgba(0,0,0,0.12),0 11px 15px -7px rgba(0,0,0,0.2);
                 }
+                .card:hover {
+                    box-shadow: 0 24px 38px 3px rgba(0,0,0,0.14),0 9px 46px 8px rgba(0,0,0,0.12),0 11px 15px -7px rgba(0,0,0,0.2);
+                }
+                .kill-button {
+                    transition: all 0.2s ease-in-out 0s;
+                    transform: scale(1);
+                }
+                .kill-button:hover {
+                    transform: scale(1.1);
+                }
+                #log {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: flex-start; /* horizontal */ 
+                    justify-content: flex-end; /* vertical */
+                    position: fixed;
+                    bottom: 30px;
+                    right: 30px;
+                    width: 10rem;
+                }
             </style>
         </head>
         <body>
             <div id="stream-container"></div>
+            <div id="log"></div>
         </body>
         <script>
-                    // 
+            //
+            // setup non-ui tools
+            //
+            const get = async (url) => new Promise((resolve, reject) =>
+                fetch(url).then(function(response) {
+                        return response.json();
+                    }).then(function(data) {
+                        resolve(data);
+                    }).catch(function() {
+                        reject()
+                    })
+                )
+            
+            // 
             // setup connection
             // 
             const socket = io()
+            const logElement = document.getElementById("log")
             // this is initilized so that, if a page is opened after the fact, it will still have the data available
             displayRequests = JSON.parse(`"""+display_requests+r"""`)
             let streamContainer = document.getElementById("stream-container")
@@ -574,9 +609,13 @@
                 refreshStreamContainer(elements)
             }
             // refresh right after page loads
-            setTimeout(refreshUi, 500)
+            setTimeout(()=>{
+                refreshUi()
+                let killButton = createKillButton()
+                document.body.appendChild(killButton)
+            }, 500)
             // and when there is new (valid) data
-            socket.on("update", (message)=>{
+            socket.on("update", async (message)=>{
                 console.log("message:", message)
                 let newData = null
                 try {
@@ -589,8 +628,16 @@
                     displayRequests = {...displayRequests, ...newData}
                     refreshUi()
                 }
+                get(window.location.origin+"/web_just_viewed")
+                return "success"
             })
-            
+            socket.on("kill:response", async (message)=>{
+                let span = document.createElement("span")
+                span.innerHTML = "server was stopped"
+                span.style.marginTop = "15px"
+                span.style.color = "gray"
+                logElement.appendChild(span)
+            })
 
 
             // 
@@ -615,7 +662,7 @@
                 return globalThis
             })().Chart
             Chart.defaults.pointRadius = 8
-            Chart.defaults.font.size = 14
+            Chart.defaults.font.size = 16
 
 
             // 
@@ -650,7 +697,7 @@
                                 {
                                     label: "Quick Scatter",
                                     data: args.map(([x, y])=>({x,y})),
-                                    backgroundColor: "rgb(255, 99, 132)",
+                                    backgroundColor: "#f07178",
                                 },
                             ],
                         },
@@ -679,7 +726,7 @@
             function createCard({ children, style, ...data }) {
                 style = {...style}
                 children = [...children]
-                let div = document.createElement("divpo")
+                let div = document.createElement("div")
                 div.classList.add("card")
                 if (typeof data.class == 'string') {
                     let classes = data.class.split(" ")
@@ -692,6 +739,32 @@
                 }
                 Object.assign(div.style, style)
                 return div
+            }
+            
+            function createKillButton() {
+                let button = document.createElement("button")
+                button.innerHTML = "Stop Server"
+                button.addEventListener("click", async ()=>{
+                    try {
+                        let result = await get(window.location.origin+"/kill")
+                        if (result == "imded") {
+                            button.style.visibility = "hidden"
+                        }
+                        console.debug(`server said: ${result}`)
+                    } catch (error) {
+                        
+                    }
+                })
+                button.style.backgroundColor = "var(--light-red)"
+                button.style.color = "white"
+                button.style.position = "fixed"
+                button.style.bottom = "30px"
+                button.style.left = "30px"
+                button.style.border = "none"
+                button.style.padding = "1rem"
+                button.style.cursor = "pointer"
+                button.classList.add("kill-button")
+                return button
             }
         </script>
         </html>

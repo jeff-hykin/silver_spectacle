@@ -121,6 +121,10 @@ import silver_spectacle as ss
 ss.configure(
     port=9900,
     custom_css="",
+    # Note: currently custom CSS and JS only get applied when the server starts.
+    # Meaning if the server is still running from an old process
+    # (a zombie server beacuse the python program crashed suddenly),
+    # then it will look like your custom CSS and javascript are not being applied
     custom_js="",
     server_start_timeout=10, # this is not very important
 )
@@ -134,19 +138,24 @@ import silver_spectacle as ss
 ss.configure(
     port=69420,
     custom_css="""
+        
         body .card {
             background-color: gray;
-            color: whitesmoke;
+            color: whitesmoke; /* font color */
         }
         
         body #stream-container {
             flex-direction: column; /* makes oldest graphs be at the top */
         }
+        
+        body {
+            background: slategray !important; /* needs to be important to override other values */ 
+        }
     """,
     custom_js="""
-    window.onload = ()=>{
-        alert("this is a pointless alert... but you can do it!")
-    }
+        window.onload = ()=>{
+            alert("this is a pointless alert... but you can do it!")
+        }
     """,
     server_start_timeout=10, # (seconds)
     # this^ is not very important
@@ -156,4 +165,4 @@ ss.configure(
 )
 ```
 
-In terms of customization `.card`, `#stream-container`, and `body` are currently the only things that are part of the library. Right now, the javascript isn't designed to be hooked into, but it **is** javascript so there are hacky ways to hook into almost anything if you're creative.
+Right now, the javascript isn't designed to be hooked into, but it **is** javascript so there are hacky ways to hook into almost anything if you're creative.

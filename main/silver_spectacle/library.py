@@ -6,12 +6,14 @@ import sys
 import atexit
 
 _display_data = {}
-_process = None; atexit.register(lambda: _process and _process.kill()) # kill process at the end
+_process = None
 _settings = {
     "port": 9900,
     "server_start_timeout": 10,
+    "custom_css": "",
+    "custom_js": "",
 }
-def configure(settings):
+def configure(**settings):
     global _settings
     _settings = {
         **_settings,
@@ -60,18 +62,24 @@ def ensure_server_is_running():
     server_start_timeout = _settings["server_start_timeout"]
     result = None
     try:
-        result = requests.get(f'http://localhost:{_settings["port"]}/ping')
+        result = requests.get(f'http://localhost:{port}/ping')
     except Exception as error:
         pass
     # if no pong, then start the server and wait
-    if not result or result.text != "pong":
+    if not result or result.text != '"pong"':
         _process = subprocess.Popen(
-            ["python", os.path.join(os.path.dirname(__file__), "server.py"), "--port", str(_settings["port"])],
+            [
+                "python",
+                os.path.join(os.path.dirname(__file__), "server.py"),
+                "--port", str(_settings["port"]),
+                "--custom-css", _settings["custom_css"],
+                "--custom-js", _settings["custom_js"],
+            ],
             stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
         )
         start = time.time()
-        while not result or result.text != "pong":
+        while not result or result.text != '"pong"':
             if time.time() - start > _settings["server_start_timeout"]:
                 print(f"\n",  file=sys.stderr)
                 print(f"[silver_spectacle] Tried to start a server on port {port}",  file=sys.stderr)
@@ -85,7 +93,7 @@ def ensure_server_is_running():
             except Exception as error:
                 pass
         # if started successfully
-        if result and result.text == "pong":
+        if result and result.text == '"pong"':
             print(f"Server started at: http://0.0.0.0:{port}")
             
         return False
@@ -104,8 +112,36 @@ def display(system, *arguments):
         "arguments": arguments,
     }
     
-    # send data and method to 
+    # send data and method
     response = requests.post(
         f'http://localhost:{port}/update',
         json=_display_data,
     )
+    
+
+# kill the server on exit, unless the data has not been viewed yet
+@atexit.register
+def check_on_server():
+    result = None
+    port = _settings["port"]
+    try:
+        result = requests.get(f'http://localhost:{port}/was_viewed')
+    except Exception as error:
+        pass
+    # if the data has been viewed, then stop the server (data will still be available in browser)
+    if result:
+        if result.text == "true":
+            _process and _process.kill()
+        else:
+            print('')
+            print(f'There were unviewed results')
+            print(f'So the display server is still running at: http://localhost:{port}')
+            print(f'(use the stop server button to kill it now)')
+            print('')
+    else:
+        # probably an old zombie process
+        pass
+    # if the user has not had time to load a web browser
+    # then keep the server running so it's there when they do try to load it
+    # FUTURE: give the web window a means of killing the server from there to prevent a zombie server process
+        
