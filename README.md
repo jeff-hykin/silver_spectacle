@@ -1,6 +1,10 @@
 ## What is this?
 
-Silver Spectacle is a python library for displaying data. Its designed as a (superior) alternative to **matplotlib**; beautiful by default, fully customizable, minimal coding required, and lightweight.
+Silver Spectacle is a python library for displaying data. Its designed as a (superior) alternative to **matplotlib**.
+  - beautiful by default
+  - fully customizable
+  - one-liners that do everything you need
+  - lightweight dependencies
 
 ## How do I use it?
 
@@ -86,7 +90,21 @@ There is some additional documentation below for fully fledged customization of 
 
 ## Whats the status of the library?
 
-There are many planned features. This library is under active development, and has not been optimized. However, the API is stable, and effectively all changes will only be adding tools to the toolbox. Some of the planned features are small, like a button for clearing the screen of existing graphs, or options to save all the data as a file. Other features will be a major addition, like theming, notifications for errors, and integration with other major Javascript charts/graphing libraries. Development probably will be sporadic, PR's are welcome.
+There are many planned features. This library is under active development, and has not been optimized. However, the API is stable, and effectively all changes will only be adding tools to the toolbox. Some of the planned features are small:
+  - working with numpy/pytorch/tensorflow tensors without needing to convert
+  - adding a button for clearing the screen of existing graphs
+  - an option to save/load all visual data to a file
+
+Other features will be a major additions 
+  - integration with 3D plot libraries
+  - graphs that incrementally update
+  - tools for displaying images/videos
+  - a simple system for combining/shaping graphs
+  - a theming system
+  - a simple interface for graphical plugins (buttons)
+  - visual notifications for errors
+ 
+Development will, more than likely, be sporadic, PR's are welcome.
 
 ## How can I contribute?
 
