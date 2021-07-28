@@ -30,17 +30,9 @@ ss.display("quickScatter", *[
 Open the address in your browser and you'll see these <br>
 ![quick_scatter_2](https://user-images.githubusercontent.com/17692058/127252592-830874fa-78f4-45ac-84d3-37dbc6cff1bc.png)
 
-## What kind of features does it have?
-
-- **Works everywhere**: WSL, Docker, and ssh over VPN's. No more 5 page tutorials trying to get X11 forwarding to function
-- **Multiple plots are effortless**: no more complex cramming of graphs together, or accidentally x-ing out that one graph you meant to take a screenshot of. Just call the function and forget about it, because you'll always be able to scroll down and find the graph later.
-- **Non-blocking**: no more hacky workarounds to get both code to display, and a graph to update at the same time. `ss.display` is non-blocking by default, so use it without worrying if your overnight computation is going to stop in the middle because its waiting for user input.
-- **Interactive**: I'm not saying its impossible for tools like matplotlib to be interactive, but lets just say nobody is doing it unless they have an unusual level of determination. Silver Spectacles are interactive almost by default.
-- **Independent runtime**: your python program can crash, but as long as you dont kill the server your graphs will still be there.
-
 ## What kind of plots can it do?
 
-If [Chart JS](https://www.chartjs.org/docs/latest/general/data-structures.html) has it, then it is available in this library.
+If [Chart JS](https://www.chartjs.org/docs/latest/general/data-structures.html) has it, then it is available in this library. In the future other visualization libraries like [plotly](https://plotly.com/javascript/3d-charts/) will be supported for 3D charts, video/image integration, and more.
 - Go to [their website](https://www.chartjs.org/docs/latest/general/data-structures.html)
 - Find an example, such as [this line chart](https://www.chartjs.org/docs/latest/charts/line.html)
 - Then do a near 1-to-1 mapping to python
@@ -77,6 +69,14 @@ config = {
 import silver_spectacle as ss
 ss.display("chartjs", config)
 ```
+
+## What kind of features does it have?
+
+- **Works everywhere**: WSL, Docker, and ssh over VPN's. No more 5 page tutorials trying to get X11 forwarding to function
+- **Multiple plots are effortless**: no more complex cramming of graphs together, or accidentally x-ing out that one graph you meant to take a screenshot of. Just call the function and forget about it, because you'll always be able to scroll down and find the graph later.
+- **Non-blocking**: no more hacky workarounds to get both code to execute, and a graph to update at the same time. `ss.display` is non-blocking by default, so use it without worrying if your overnight computation is going to stop in the middle because its waiting for user input.
+- **Interactive**: I'm not saying its impossible for tools like matplotlib to be interactive, but lets just say nobody is doing it unless they have an unusual level of determination. Silver Spectacles are interactive almost by default.
+- **Independent runtime**: your python program can crash, but as long as you dont kill the server your graphs will still be there.
 
 ## Documentation?
 
