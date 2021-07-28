@@ -1,6 +1,6 @@
 ## What is this?
 
-Silver Spectacle is a python library for displaying data designed as a superior alternative to **matplotlib**; beautiful by default, fully customizable, minimal coding required, and lightweight.
+Silver Spectacle is a python library for displaying data. Its designed as a (superior) alternative to **matplotlib**; beautiful by default, fully customizable, minimal coding required, and lightweight.
 
 ## How do I use it?
 
