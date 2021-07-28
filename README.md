@@ -28,8 +28,7 @@ ss.display("quickScatter", *[
 ```
 
 Open the address in your browser and you'll see these <br>
-<img src="/documentation/images/quick_scatter_2.png" alt="description">
-
+![quick_scatter_2](https://user-images.githubusercontent.com/17692058/127252592-830874fa-78f4-45ac-84d3-37dbc6cff1bc.png)
 
 ## What kind of features does it have?
 
