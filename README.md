@@ -1,10 +1,11 @@
 ## What is this?
 
 Silver Spectacle is a python library for displaying data. Its designed as a (superior) alternative to **matplotlib**.
-  - beautiful by default
-  - fully customizable
-  - one-liners that do everything you need
-  - lightweight dependencies
+  - [Well designed](https://ryxcommar.com/2020/04/11/why-you-hate-matplotlib/) one liners that do everything
+  - [Beautiful](https://www.reddit.com/r/learnpython/comments/gaxpbp/does_anyone_else_find_matplotlib_a_bit_ugly_are/) by default
+  - Easy to customize, with total control over every visual element
+  - Lightweight and reliable (no X11, QT, or tkinter dependencies)
+  - Useful documentation (basic use-cases don't require [stack overflow questions with hundreds of upvotes](https://stackoverflow.com/questions/22276066/how-to-plot-multiple-functions-on-the-same-figure-in-matplotlib))
 
 ## How do I use it?
 
@@ -84,11 +85,11 @@ ss.display("chartjs", config)
 
 ## What kind of features does it have?
 
-- **Works everywhere**: WSL, Docker, and ssh over VPN's. No more 5 page tutorials trying to get X11 forwarding to function
-- **Multiple plots are effortless**: no more complex cramming of graphs together, or accidentally x-ing out that one graph you meant to take a screenshot of. Just call the function and forget about it, because you'll always be able to scroll down and find the graph later.
-- **Non-blocking**: no more hacky workarounds to get both code to execute, and a graph to update at the same time. `ss.display` is non-blocking by default, so use it without worrying if your overnight computation is going to stop in the middle because its waiting for user input.
-- **Independent runtime**: your python program can crash, but as long as you dont kill the server your graphs will still be there.
-- **Interactive**: I'm not saying its impossible for tools like matplotlib to have custom interactivity, but lets just say nobody is doing it unless they have an unusual level of determination. Silver Spectacles let's you add custom buttons, effects, etc.
+- **Works everywhere**: You can run this on your Raspberry Pi and view the results on your phone. It works whether it's WSL, Docker, or ssh over a VPN. No more 5 page tutorials about X11 forwarding, display variables, and editing config files.
+- **Non-blocking**: No more [hacky/painful workarounds](https://stackoverflow.com/questions/28269157/plotting-in-a-non-blocking-way-with-matplotlib#33050617) to get both code to execute, and a graph to update at the same time. `ss.display` is non-blocking by default, so use it without worrying if your overnight computation is going to stop in the middle because its waiting for user input.
+- **Multiple plots are effortless**: Graphs are displayed in a stream with the most recent one at the top. Just call display and forget about it. No more complex mashing of graphs together, or hassle of closing window after window, only to realize you meant to screenshot the one you just closed. 
+- **Independent runtime**: If your main python program crashes that's fine, the cleanup function will intentionally leave the graph server running instead of killing it so you can still access your data. As long as you don't manually kill the server process, your data will be there.
+- **Interactive**: I'm not saying its impossible for tools like matplotlib to have custom interactivity, but lets just say nobody is doing it unless they have an unusual level of determination. Silver Spectacles let's you add custom buttons, effects, etc with ease.
 
 ## Documentation?
 
