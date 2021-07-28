@@ -95,7 +95,6 @@ There are many planned features, and this library is under active development, a
     - `./main/silver_spectacle/server.py` is the code that is run inside of a subprocess
     - `./main/silver_spectacle/index.html` is simply imported by the server
 - After modification, you can use the `commands/project/local_install` command to install the local version you've created
-- Then you can test to your 
 
 ## How does it work? 
 
