@@ -145,12 +145,18 @@ import silver_spectacle as ss
 
 ss.configure(
     port=9900,
+    # Note: until version 1.0.0 is released
+    # interactions inside JavaScript and CSS 
+    # (e.g. variable and class names) will be unstable. 
+    # So if you customize the CSS/JS, then inside your requirements.txt file
+    # make sure to pin the exact version number of silver_spectacle to keep your code reliable 
     custom_css="",
-    # Note: currently custom CSS and JS only get applied when the server starts.
-    # Meaning if the server is still running from an old process
+    custom_js="",
+    # Note2: currently custom CSS and JS only get applied when the server starts.
+    # Meaning, if the server is still running from an old process
     # (a zombie server beacuse the python program crashed suddenly),
     # then it will look like your custom CSS and javascript are not being applied
-    custom_js="",
+    
     server_start_timeout=10, # this is not very important
 )
 ```
@@ -180,14 +186,26 @@ ss.configure(
     custom_js="""
         window.onload = ()=>{
             alert("this is a pointless alert... but you can do it!")
+            
+            // call/use the custom function below in python by doing:
+            //     import silver_spectacle as ss
+            //     ss.display("myCustomUi", "hello world")
+            //
+            uiOptions["myCustomUi"] = async (args) => {
+                let message = args[0]
+                let myComponent = document.createElement("div")
+                myComponent.innerHTML = "Python says:<br>"+message
+                // needs to return an html element
+                return myComponent
+            }
         }
     """,
     server_start_timeout=10, # (seconds)
     # this^ is not very important
-    # it is how long to wait if the server doesnt start at all
+    # the value is how long to wait if the server doesn't start at all
     # designed to fail without throwing an error encase the user 
     # is performing important computations
 )
 ```
 
-Right now, the javascript isn't designed to be hooked into, but it **is** javascript so there are hacky ways to hook into almost anything if you're creative.
+Right now, there is still a lot of room for improving/expanding the javascript interface with events, tools, and encapsulation.
