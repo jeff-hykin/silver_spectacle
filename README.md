@@ -13,7 +13,7 @@ Install just like any other pip module
 
 `pip install silver_spectacle`
 
-Then inside a python file (or the commandline)
+Then inside a python file (or python repl) 
 ```python
 import silver_spectacle as ss
 
