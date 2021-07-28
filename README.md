@@ -41,10 +41,10 @@ If [Chart JS](https://www.chartjs.org/docs/latest/general/data-structures.html) 
 
 For example:
 - Go to [Chart JS's website](https://www.chartjs.org/docs/latest/general/data-structures.html)
-- Find an example, such as [this line chart](https://www.chartjs.org/docs/latest/charts/line.html)
+- Find a plot, such as [this line chart](https://www.chartjs.org/docs/latest/charts/line.html)
 - Then do a near 1-to-1 mapping to python
 
-Take a look at their `setup` tab
+For example, with that line chart, look at their `setup` tab
 ![setup_tab](https://user-images.githubusercontent.com/17692058/127252596-90333d78-8cd1-43ee-8764-c92ff90697b6.png)
 
 Look at the `config` tab
@@ -53,6 +53,9 @@ Look at the `config` tab
 
 Then make a *very* similar structure with a python dictionary
 ```python
+#
+# setup tab part
+#
 labels = [ "January", "February", "March", "April", "May", "June", "July", ]
 data = {
   "labels": labels,
@@ -64,6 +67,9 @@ data = {
     "tension": 0.1
   }]
 }
+#
+# config tag part
+#
 config = {
   "type": 'line',
   "data": data,
