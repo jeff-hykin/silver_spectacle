@@ -32,7 +32,7 @@ ss.display("quickScatter", *[
 ])
 ```
 
-Open the address in your browser and you'll see these <br>
+Open the address in your browser and you should see these <br>
 ![quick_scatter_2](https://user-images.githubusercontent.com/17692058/127252592-830874fa-78f4-45ac-84d3-37dbc6cff1bc.png)
 
 ## What kind of plots can it do?
