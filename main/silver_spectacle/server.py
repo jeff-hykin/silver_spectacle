@@ -31,6 +31,7 @@ display_requests = "{}"
 @routes.get('/')
 async def index(request): 
     global display_requests
+    global last_time_data_was_viewed
     from os.path import isabs, isfile, isdir, join, dirname, basename, exists, splitext, relpath
     try:
         with open(join(dirname(__file__), "index.html"),'r') as f:
@@ -73,11 +74,13 @@ async def was_viewed(request):
 
 @routes.get('/web_just_viewed')
 async def web_just_viewed(request):
+    global last_time_data_was_viewed
     last_time_data_was_viewed = now()
 
 @routes.post('/update')
 async def update(request):
     global display_requests
+    global last_time_data_was_updated
     display_requests = await request.text()
     last_time_data_was_updated = now()
     await sio.emit('update', display_requests)

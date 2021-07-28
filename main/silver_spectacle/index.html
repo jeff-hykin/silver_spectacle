@@ -613,6 +613,7 @@
                 refreshUi()
                 let killButton = createKillButton()
                 document.body.appendChild(killButton)
+                get(window.location.origin+"/web_just_viewed")
             }, 500)
             // and when there is new (valid) data
             socket.on("update", async (message)=>{
