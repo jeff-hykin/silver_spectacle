@@ -3,7 +3,7 @@
 Silver Spectacle is a python library for displaying data. Its designed as a (superior) alternative to **matplotlib**.
   - [Well designed](https://ryxcommar.com/2020/04/11/why-you-hate-matplotlib/) one liners that do everything
   - [Beautiful](https://www.reddit.com/r/learnpython/comments/gaxpbp/does_anyone_else_find_matplotlib_a_bit_ugly_are/) by default
-  - Easy to customize, with total control over every visual element
+  - Easy to customize, with [total control](https://github.com/jeff-hykin/silver_spectacle/blob/master/README.md#additional-documentation) over every visual element
   - Lightweight and reliable (no X11, QT, or tkinter dependencies)
   - Useful documentation (basic use-cases don't require [stack overflow questions with hundreds of upvotes](https://stackoverflow.com/questions/22276066/how-to-plot-multiple-functions-on-the-same-figure-in-matplotlib))
 
