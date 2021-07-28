@@ -33,11 +33,14 @@ Open the address in your browser and you'll see these <br>
 ## What kind of plots can it do?
 
 If [Chart JS](https://www.chartjs.org/docs/latest/general/data-structures.html) has it, then it is available in this library. In the future other visualization libraries like [plotly](https://plotly.com/javascript/3d-charts/) will be supported for 3D charts, video/image integration, and more.
-- Go to [their website](https://www.chartjs.org/docs/latest/general/data-structures.html)
+<br>
+
+For example:
+- Go to [Chart JS's website](https://www.chartjs.org/docs/latest/general/data-structures.html)
 - Find an example, such as [this line chart](https://www.chartjs.org/docs/latest/charts/line.html)
 - Then do a near 1-to-1 mapping to python
 
-For example, take a look at their `setup` tab
+Take a look at their `setup` tab
 ![setup_tab](https://user-images.githubusercontent.com/17692058/127252596-90333d78-8cd1-43ee-8764-c92ff90697b6.png)
 
 Look at the `config` tab
@@ -45,7 +48,6 @@ Look at the `config` tab
 <br>
 
 Then make a *very* similar structure with a python dictionary
-
 ```python
 labels = [ "January", "February", "March", "April", "May", "June", "July", ]
 data = {
