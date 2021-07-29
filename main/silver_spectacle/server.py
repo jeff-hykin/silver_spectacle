@@ -724,9 +724,29 @@ async def index(request):
                 }
                 document.body.appendChild(streamContainer)
             }
-
             const uiOptions = {
                 chartjs: (args) => {
+                    //
+                    // if simple data then upgrade it
+                    //
+                    let labelExists = false
+                    try { labelExists = args[0].data.labels instanceof Array } catch (error) {}
+                    if (!labelExists) {
+                        let dataIsSingleNumbers = false
+                        try { dataIsSingleNumbers = !((args[0].data[0])-0 !== (args[0].data[0])-0) } catch (error) {}
+                        let length = 0
+                        if (dataIsSingleNumbers) {
+                            length = args[0].data.length
+                        } else {
+                            try { dataIsSingleNumbers = dataIsSingleNumbers ||  !((args[0].data.datasets[0].data) !== (args[0].data.datasets[0].data)) } catch (error) {}
+                            if (dataIsSingleNumbers) {
+                                length = Math.max(...args[0].data.datasets.map(each=>each.data.length))
+                            }
+                        }
+                        if (dataIsSingleNumbers) {
+                            args[0].data.labels = [...Array(length)].map((each,index)=>index)
+                        }
+                    }
                     const canvas = document.createElement("canvas")
                     setTimeout(() => {
                         const myChart = new Chart(canvas, args[0])
