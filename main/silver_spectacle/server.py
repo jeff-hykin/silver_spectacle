@@ -706,6 +706,7 @@ async def index(request):
                 return globalThis
             })().Chart
             Chart.defaults.pointRadius = 8
+            Chart.defaults.pointHoverRadius = 10
             Chart.defaults.font.size = 16
 
 
