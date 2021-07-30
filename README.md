@@ -49,7 +49,7 @@ card.send([1.5, 2.3])
 card.send([2,3.2])
 ```
 
-NOTE: Currently live updates need to be sent after the browser window to be open. Otherwise the web page will miss the notification. This behavior will be fixed in the future, but requires a bit of effort to be done in a performant way.
+NOTE: Currently live updates need to be sent after the browser window is loaded. Otherwise the web page will miss the notification. This behavior will be fixed in the future, but requires a bit of effort to be done in a performant way.
 
 <br>
 
