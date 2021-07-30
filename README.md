@@ -58,10 +58,10 @@ NOTE: Currently each `.send()` depends on the type of card (the interface). For 
 
 ## What kind of plots can it do?
 
-If [Chart JS](https://www.chartjs.org/docs/latest/general/data-structures.html) has it, then it is already available in this library. More visualization libraries like [plotly](https://plotly.com/javascript/3d-charts/) will be added to enable additional 2D plots, 3D charts, video/image integration, and more.
+If [Chart JS](https://www.chartjs.org/docs/latest/general/data-structures.html) has it, then it is already available in this library. More visualization libraries like [plotly](https://plotly.com/javascript/3d-charts/) will be added to enable additional 2D plots, 3D charts, video/image integration, etc.
 <br>
 
-For example:
+To use one of their charts:
 - Go to [Chart JS's website](https://www.chartjs.org/docs/latest/general/data-structures.html)
 - Find a plot, such as [this line chart](https://www.chartjs.org/docs/latest/charts/line.html)
 - Then do a near 1-to-1 mapping to python
@@ -136,7 +136,7 @@ ss.DisplayCard("chartjs", {
         ]
     },
     "options": {
-        "pointRadius": 3,
+        "pointRadius": 3, # the size of the dots
         "scales": {
             "y": {
                 "min": 50,
@@ -163,18 +163,18 @@ There is some additional documentation below for fully fledged customization of 
 ## Whats the status of the library?
 
 There are many planned features. This library is under active development, and has not been optimized. However, the API is stable, and effectively all changes will only be adding tools to the toolbox. Some of the planned features are small:
-  - working with numpy/pytorch/tensorflow tensors without needing to convert
   - adding a button for clearing the screen of existing graphs
   - an option to save/load all visual data to a file
+  - better interfaces for graphs that incrementally update
+  - working with numpy/pytorch/tensorflow tensors without needing to convert
 
 Other features will be a major additions 
-  - integration with 3D plot libraries
-  - graphs that incrementally update
   - tools for displaying images/videos
+  - integration with 3D plot libraries
   - a simple system for combining/shaping graphs
   - a theming system
+  - better visual notifications for errors
   - a simple interface for graphical plugins (buttons)
-  - visual notifications for errors
  
 Development will, more than likely, be sporadic, PR's are welcome.
 
@@ -210,10 +210,9 @@ import silver_spectacle as ss
 ss.configure(
     port=9900,
     # Note: until version 1.0.0 is released
+    # make sure to pin the exact version number of silver_spectacle to keep your code reliable 
     # interactions inside JavaScript and CSS 
     # (e.g. variable and class names) will be unstable. 
-    # So if you customize the CSS/JS, then inside your requirements.txt file
-    # make sure to pin the exact version number of silver_spectacle to keep your code reliable 
     custom_css="",
     custom_js="",
     # Note2: currently custom CSS and JS only get applied when the server starts.
@@ -260,6 +259,7 @@ ss.configure(
             silverSpectacle.cards[0].arguments // array of json values
             silverSpectacle.interface          // dict of fuctions that create card elements
             silverSpectacle.libraries          // dict of libraries, like ChartJS that you can use
+            silverSpectacle.libraries.lodash   // if you like lodash, its available
             
             //
             // add your own card/interface
@@ -270,7 +270,7 @@ ss.configure(
                     let myComponent = document.createElement("div")
                     myComponent.innerHTML = "Python says:<br>"+message
                     
-                    // silverSpectacle.createCard gives wraps the component in a container with the white background and shadow
+                    // silverSpectacle.createCard() wraps the component to give it the white background and shadow
                     let card = silverSpectacle.createCard({ children: [ myComponent ], })
                     
                     // (optional) add a handler for dyanmic data
