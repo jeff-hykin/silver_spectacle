@@ -35,6 +35,27 @@ ss.DisplayCard("quickScatter", *[
 Open the address in your browser and you should see these <br>
 ![quick_scatter_2](https://user-images.githubusercontent.com/17692058/127252592-830874fa-78f4-45ac-84d3-37dbc6cff1bc.png)
 
+
+You can also perform live/progressive updates on the charts.
+```python
+import silver_spectacle as ss
+card = ss.DisplayCard("quickScatter", *[
+    [1,2],
+    [2,3.2]
+])
+# live / progressive updates
+card.send([5,5])
+card.send([1.5, 2.3])
+card.send([2,3.2])
+```
+
+NOTE: Currently live updates need to be sent after the browser window to be open. Otherwise the web page will miss the notification. This behavior will be fixed in the future, but requires a bit of effort to be done in a performant way.
+
+<br>
+
+NOTE: Currently each `.send()` depends on the type of card (the interface). For example the arguments for `quickScatter` can be different from `chartjs`.
+
+
 ## What kind of plots can it do?
 
 If [Chart JS](https://www.chartjs.org/docs/latest/general/data-structures.html) has it, then it is already available in this library. More visualization libraries like [plotly](https://plotly.com/javascript/3d-charts/) will be added to enable additional 2D plots, 3D charts, video/image integration, and more.
