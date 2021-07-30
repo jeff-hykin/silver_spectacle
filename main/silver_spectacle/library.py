@@ -145,7 +145,7 @@ def _update_file(file_path, new_json_data):
 # 
 # 
 
-_display_data = {}
+_card_data = {}
 _process = None
 _settings = {
     "port": 9900,
@@ -153,6 +153,39 @@ _settings = {
     "custom_css": "",
     "custom_js": "",
 }
+
+# in the future this will allow for non-local display servers
+# however, for right now, silver_spectacle only officially supports localhost
+def _get_base_url():
+    user_provided_url = _settings.get("base_url", None)
+    if isinstance(user_provided_url, str):
+        return user_provided_url
+    else:
+        port = _settings["port"]
+        return f"http://localhost:{port}"
+    
+def _contact_server(endpoint, data=None, catch_all_errors=False, ensure_server_is_up=True):
+    import json
+    try:
+        # remove complex classes in favor of simple lists/dicts (NOTE: doesn't remove recursive values)
+        data = _to_pure(data)
+        if ensure_server_is_up:
+            ensure_server_is_running()
+        base_url = _get_base_url()
+        response = requests.post(
+            f'{base_url}/{endpoint}',
+            json=data,
+        )
+        if response and isinstance(response.text, str):
+            return json.loads(response.text)
+        else:
+            return None
+    except Exception as error:
+        if catch_all_errors:
+            return None
+        else:
+            raise error
+
 def configure(**settings):
     global _settings
     _settings = {
@@ -165,13 +198,9 @@ def ensure_server_is_running():
     global _process
     port = _settings["port"]
     server_start_timeout = _settings["server_start_timeout"]
-    result = None
-    try:
-        result = requests.get(f'http://localhost:{port}/ping')
-    except Exception as error:
-        pass
+    result = _contact_server("ping", catch_all_errors=True, ensure_server_is_up=False)
     # if no pong, then start the server and wait
-    if not result or result.text != '"pong"':
+    if result != "pong":
         _process = subprocess.Popen(
             [
                 sys.executable,
@@ -180,11 +209,11 @@ def ensure_server_is_running():
                 "--custom-css", _settings["custom_css"],
                 "--custom-js", _settings["custom_js"],
             ],
-            stdout=subprocess.PIPE,
+            # stdout=subprocess.PIPE,
             # stderr=subprocess.STDOUT,
         )
         start = time.time()
-        while not result or result.text != '"pong"':
+        while result != "pong":
             if time.time() - start > _settings["server_start_timeout"]:
                 print(f"\n",  file=sys.stderr)
                 print(f"[silver_spectacle] Tried to start a server on port {port}",  file=sys.stderr)
@@ -194,62 +223,53 @@ def ensure_server_is_running():
                 print(f"[silver_spectacle] {_process}",  file=sys.stderr)
                 print(f"\n",  file=sys.stderr)
                 break
-            try:
-                result = requests.get(f'http://localhost:{port}/ping')
-            except Exception as error:
-                pass
+            result = _contact_server("ping", catch_all_errors=True, ensure_server_is_up=False)
         # if started successfully
-        if result and result.text == '"pong"':
-            print(f"Server started at: http://0.0.0.0:{port}")
+        if result == "pong":
+            address = _get_base_url()
+            print(f"[silver_spectacle] server started at: {address}")
             
         return False
     else:
         return True
 
-def display(system, *arguments):
-    global _settings
-    global _display_data
-    port = _settings["port"]
-    server_was_running = ensure_server_is_running()
-    now = time.time()
-    _display_data[str(int(now * 1000000000))] = {
-        "time": now,
-        "system": system,
-        "arguments": arguments,
-    }
+class DisplayCard:
+    def __init__(self, interface, *arguments):
+        global _card_data
+        
+        self._interface = interface
+        self._created_at = time.time()
+        self.id = str(int(self._created_at * 1000000000))
+        
+        _card_data[self.id] = {
+            "createdAt": self._created_at,
+            "interface": interface,
+            "arguments": arguments,
+        }
+        
+        _contact_server("new_card", _card_data)
     
-    # remove complex classes in favor of simple lists/dicts (NOTE: doesn't remove recursive values)
-    _display_data = _to_pure(_display_data)
-    # send data and method
-    response = requests.post(
-        f'http://localhost:{port}/update',
-        json=_display_data,
-    )
+    def _trigger(self, action, data):
+        return _contact_server("card_trigger", {
+            "time": time.time(),
+            "cardId": self.id,
+            "action": action,
+            "data": data,
+        })
     
+    # send
+    def send(self, data): self._trigger("send", data)
 
 # kill the server on exit, unless the data has not been viewed yet
 @atexit.register
 def check_on_server():
-    result = None
-    port = _settings["port"]
-    try:
-        result = requests.get(f'http://localhost:{port}/was_viewed')
-    except Exception as error:
-        pass
     # if the data has been viewed, then stop the server (data will still be available in browser)
-    if result:
-        if result.text == "true":
-            _process and _process.kill()
-        else:
-            print('')
-            print(f'There were unviewed results')
-            print(f'So the display server is still running at: http://localhost:{port}')
-            print(f'(use the stop server button to kill it now)')
-            print('')
+    if _contact_server("was_data_seen", catch_all_errors=True):
+        _process and _process.kill()
     else:
-        # probably an old zombie process
-        pass
-    # if the user has not had time to load a web browser
-    # then keep the server running so it's there when they do try to load it
-    # FUTURE: give the web window a means of killing the server from there to prevent a zombie server process
-        
+        base_url = _get_base_url()
+        print('')
+        print(f'[silver_spectacle] There were unviewed results')
+        print(f'[silver_spectacle] So the display server is still running at: {base_url}')
+        print(f'[silver_spectacle] (use the stop server button to kill it now)')
+        print('')

@@ -17,13 +17,13 @@ Then inside a python file (or python repl)
 ```python
 import silver_spectacle as ss
 
-ss.display("quickScatter", *[
+ss.DisplayCard("quickScatter", *[
     [1,2],
     [2,3.2]
 ])
 # >>> Server started at: http://0.0.0.0:9900
 
-ss.display("quickScatter", *[
+ss.DisplayCard("quickScatter", *[
     [1,2],
     [2,3],
     [5,5],
@@ -80,7 +80,7 @@ config = {
 # display the data
 #
 import silver_spectacle as ss
-ss.display("chartjs", config)
+ss.DisplayCard("chartjs", config)
 ```
 
 ## What kind of features does it have?
@@ -120,7 +120,6 @@ Development will, more than likely, be sporadic, PR's are welcome.
 - You can modify the files under `./main/silver_spectacle/`
     - `./main/silver_spectacle/library.py` is the code that actually gets imported
     - `./main/silver_spectacle/server.py` is the code that is run inside of a subprocess
-    - `./main/silver_spectacle/index.html` is simply imported by the server
 - After modification, you can use the `commands/project/local_install` command to install the local version you've created
 
 ## How does it work? 
@@ -185,19 +184,52 @@ ss.configure(
     """,
     custom_js="""
         window.onload = ()=>{
-            alert("this is a pointless alert... but you can do it!")
-            
-            // call/use the custom function below in python by doing:
-            //     import silver_spectacle as ss
-            //     ss.display("myCustomUi", "hello world")
             //
-            uiOptions["myCustomUi"] = async (args) => {
-                let message = args[0]
-                let myComponent = document.createElement("div")
-                myComponent.innerHTML = "Python says:<br>"+message
-                // needs to return an html element
-                return myComponent
-            }
+            // main API
+            //
+            silverSpectacle.log("string")      // add information to the graphical log
+            silverSpectacle.cards              // dict with cardId's as keys
+            silverSpectacle.cards[0].element   // html element of card with ID of 0
+            silverSpectacle.cards[0].createdAt // unix time in seconds
+            silverSpectacle.cards[0].interface // name of interface as string
+            silverSpectacle.cards[0].arguments // array of json values
+            silverSpectacle.interface          // dict of fuctions that create card elements
+            silverSpectacle.libraries          // dict of libraries, like ChartJS that you can use
+            
+            //
+            // add your own card/interface
+            //
+                // step 1, create a function like the one below (an interface)
+                silverSpectacle.interface["myCustomUi"] = async (args) => {
+                    let message = args[0]
+                    let myComponent = document.createElement("div")
+                    myComponent.innerHTML = "Python says:<br>"+message
+                    
+                    // silverSpectacle.createCard gives wraps the component in a container with the white background and shadow
+                    let card = silverSpectacle.createCard({ children: [ myComponent ], })
+                    
+                    // (optional) add a handler for dyanmic data
+                    card.receive = function (data) {
+                        // update the component
+                        myComponent.innerHTML += `<br> python also wanted to say: {JSON.stringify(data)}`
+                        // warning / error checking
+                        if (typeof data != 'string') {
+                            silverSpectacle.log("[warning] data was dynamically sent to myCustomUi, but it wasn't a string")
+                        }
+                    }
+                    
+                    // needs to return an html element
+                    return card
+                }
+                // step 2, call it from python!
+                //
+                //     import silver_spectacle as ss
+                //     # create card
+                //     custom_card = ss.DisplayCard("myCustomUi", "hello world")
+                //     import time
+                //     time.sleep(5)
+                //     # add more data after the fact
+                //     custom_card.send("I waited 5 sec to send this")
         }
     """,
     server_start_timeout=10, # (seconds)
