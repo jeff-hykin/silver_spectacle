@@ -19,13 +19,15 @@ args = parser.parse_args()
 # globals 
 last_time_data_was_viewed = -math.inf
 last_time_data_was_updated = now()
+debugging = False
 
 # 
 # server setup
 # 
 app = web.Application()
 routes = web.RouteTableDef()
-sio = socketio.AsyncServer(); sio.attach(app)
+options = {} if not debugging else dict(logger=True, engineio_logger=True,)
+sio = socketio.AsyncServer(async_mode='aiohttp', cors_allowed_origins="*", **options); sio.attach(app)
 cards = "{}"
 
 @routes.get('/')
@@ -708,7 +710,12 @@ async def index(request):
                 // init key vars
                 // 
                 // 
-                    let socket = silverSpectacle.libraries.socket = io()
+                    let socket = silverSpectacle.libraries.socket = io({
+                        reconnection: true,
+                        reconnectionDelay: 250,
+                        reconnectionDelayMax : 5000,
+                        reconnectionAttempts: Infinity,
+                    })
                     silverSpectacle.cards = JSON.parse(`'''+cards+r'''`)
                     let streamContainer = document.getElementById("stream-container")
                 
@@ -771,8 +778,8 @@ async def index(request):
                                     ],
                                 },
                                 options: {
-                                    pointRadius: 7,
-                                    pointHoverRadius: 9,
+                                    pointRadius: 6,
+                                    pointHoverRadius: 8,
                                     scales: {
                                         x: {
                                             type: "linear",
@@ -828,7 +835,8 @@ async def index(request):
                                     }
                                 }
                             }
-                            // TODO: add more error handling
+                            // TODO: add more error handling/loggint
+                            post({ to: window.location.origin+"/web_received_data" })
                         })
                         
                     // when server says "i'm stopping"

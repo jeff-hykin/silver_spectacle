@@ -10,6 +10,8 @@ import atexit
 # helper tools
 # 
 
+debugging = False
+
 def _is_iterable(thing):
     # https://stackoverflow.com/questions/1952464/in-python-how-do-i-determine-if-an-object-is-iterable
     try:
@@ -209,7 +211,7 @@ def ensure_server_is_running():
                 "--custom-css", _settings["custom_css"],
                 "--custom-js", _settings["custom_js"],
             ],
-            # stdout=subprocess.PIPE,
+            **({} if debugging else dict(stdout=subprocess.PIPE)),
             # stderr=subprocess.STDOUT,
         )
         start = time.time()

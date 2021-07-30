@@ -1,0 +1,38 @@
+aiohttp            3.7.4     Async http client/server framework (asyncio)
+async-timeout      3.0.1     Timeout context manager for asyncio programs
+attrs              21.2.0    Classes Without Boilerplate
+bidict             0.21.2    The bidirectional mapping library for Python.
+bleach             3.3.1     An easy safelist-based HTML-sanitizing tool.
+certifi            2021.5.30 Python package for providing Mozilla's CA Bundle.
+cffi               1.14.6    Foreign Function Interface for Python calling C code.
+chardet            3.0.4     Universal encoding detector for Python 2 and 3
+charset-normalizer 2.0.3     The Real First Universal Charset Detector. Open, modern and actively maintained alternative to Chardet.
+colorama           0.4.4     Cross-platform colored terminal text.
+cryptography       3.4.7     cryptography is a package which provides cryptographic recipes and primitives to Python developers.
+docutils           0.17.1    Docutils -- Python Documentation Utilities
+idna               3.2       Internationalized Domain Names in Applications (IDNA)
+importlib-metadata 4.6.1     Read metadata from Python packages
+jeepney            0.7.0     Low-level, pure Python DBus protocol wrapper.
+keyring            23.0.1    Store and access your passwords safely.
+keyrings.alt       4.0.2     Alternate keyring implementations
+multidict          5.1.0     multidict implementation
+packaging          21.0      Core utilities for Python packages
+pkginfo            1.7.1     Query metadatdata from sdists / bdists / installed packages.
+pycparser          2.20      C parser in Python
+pygments           2.9.0     Pygments is a syntax highlighting package written in Python.
+pyparsing          2.4.7     Python parsing module
+python-engineio    4.2.0     Engine.IO server
+python-socketio    5.3.0     Socket.IO server
+readme-renderer    29.0      readme_renderer is a library for rendering "readme" descriptions for Warehouse
+requests           2.26.0    Python HTTP for Humans.
+requests-toolbelt  0.9.1     A utility belt for advanced users of python-requests
+rfc3986            1.5.0     Validating URI References per RFC 3986
+secretstorage      3.3.1     Python bindings to FreeDesktop.org Secret Service API
+six                1.16.0    Python 2 and 3 compatibility utilities
+tqdm               4.61.2    Fast, Extensible Progress Meter
+twine              3.4.1     Collection of utilities for publishing packages on PyPI
+typing-extensions  3.10.0.0  Backported and Experimental Type Hints for Python 3.5+
+urllib3            1.26.6    HTTP library with thread-safe connection pooling, file post, and more.
+webencodings       0.5.1     Character encoding aliases for legacy web content
+yarl               1.6.3     Yet another URL library
+zipp               3.5.0     Backport of pathlib-compatible object wrapper for zip files

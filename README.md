@@ -83,6 +83,50 @@ import silver_spectacle as ss
 ss.DisplayCard("chartjs", config)
 ```
 
+Here's another example of how that might look
+
+```python
+import silver_spectacle as ss
+ss.DisplayCard("chartjs", {
+    "type": 'line',
+    "data": {
+        "datasets": [
+            {
+                "label": 'Approach 1',
+                "data": [ 85, 90, 89, 91, 92, 88 ],
+                "fill": True,
+                "tension": 0.1,
+                "backgroundColor": 'rgb(75, 192, 192, 0.5)',
+            },
+            {
+                "label": 'Approach 2',
+                "data": [ 75, 80, 78, 81, 82, 77 ],
+                "fill": True,
+                "tension": 0.1,
+                "backgroundColor": 'rgb(0, 292, 192, 0.5)',
+            },
+            {
+                "label": 'Approach 3',
+                "data": [ 95, 90, 99, 91, 92, 99 ],
+                "fill": True,
+                "tension": 0.1,
+                "backgroundColor": 'rgb(0, 92, 192, 0.5)',
+            },
+        ]
+    },
+    "options": {
+        "pointRadius": 3,
+        "scales": {
+            "y": {
+                "min": 50,
+                "max": 100,
+            },
+        }
+    }
+})
+```
+
+
 ## What kind of features does it have?
 
 - **Works everywhere**: You can run this on your Raspberry Pi and view the results on your phone. It works whether it's WSL, Docker, or ssh over a VPN. No more 5 page tutorials about X11 forwarding, display variables, and editing config files.
