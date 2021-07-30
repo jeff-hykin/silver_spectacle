@@ -17,13 +17,13 @@ Then inside a python file (or python repl)
 ```python
 import silver_spectacle as ss
 
-ss.DisplayCard("quickScatter", *[
+ss.DisplayCard("quickScatter", [
     [1,2],
     [2,3.2]
 ])
 # >>> Server started at: http://0.0.0.0:9900
 
-ss.DisplayCard("quickScatter", *[
+ss.DisplayCard("quickScatter", [
     [1,2],
     [2,3],
     [5,5],
@@ -39,7 +39,7 @@ Open the address in your browser and you should see these <br>
 You can also perform live/progressive updates on the charts.
 ```python
 import silver_spectacle as ss
-card = ss.DisplayCard("quickScatter", *[
+card = ss.DisplayCard("quickScatter", [
     [1,2],
     [2,3.2]
 ])

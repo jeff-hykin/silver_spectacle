@@ -825,7 +825,7 @@ async def index(request):
                                 datasets: [
                                         {
                                             label: "Quick Scatter",
-                                            data: args.map(([x, y])=>({x,y})),
+                                            data: args[0].map(([x, y])=>({x,y})),
                                             backgroundColor: "#f07178",
                                         },
                                     ],
