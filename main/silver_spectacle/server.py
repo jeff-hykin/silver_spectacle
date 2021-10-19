@@ -571,7 +571,19 @@ async def index(request):
                 #stream-container > .card {
                     margin-bottom: 4.5rem;
                 }
+                .button {
+                    --accent-color: var(--light-red);
+                    border: 1px solid var(--accent-color);
+                    border-radius: 2rem;
+                    padding: 0.6rem 0.8rem;
+                    color: var(--accent-color);
+                    cursor: pointer;
+                }
+                .button:hover {
+                    box-shadow: 0 4px 5px 0 rgba(0,0,0,0.14), 0 1px 10px 0 rgba(0,0,0,0.12), 0 2px 4px -1px rgba(0,0,0,0.3);
+                }
                 .card {
+                    position: relative;
                     padding: 1rem;
                     border-radius: 1rem;
                     background-color: var(--card-background);
@@ -849,7 +861,86 @@ async def index(request):
                                 card.chartJsChart.update()
                             }
                             return card
-                        }
+                        },
+                        
+                        //
+                        // Quick Image
+                        //
+                        quickImage: (args) => {
+                            const card = silverSpectacle.createCard({children:[]})
+                            
+                            //
+                            // canvas sizing
+                            //
+                            const canvas = document.createElement("canvas")
+                            canvas.style.maxWidth = "100%"
+                            canvas.style.maxHeight = "38rem"
+                            canvas.style.height = "38rem"
+                            canvas.style.transition = "all 0.25s ease-out 0s"
+                            
+                            //
+                            // add image data
+                            //
+                            const putImageIntoCanvas = (rgbImage) => {
+                                const context = canvas.getContext("2d")
+                                const width = rgbImage[0].length
+                                const height = rgbImage.length
+                                canvas.height = height
+                                canvas.width = width
+                                const listOfPixels = rgbImage.flat()
+                                const flattenedRgba = listOfPixels.map(each=>each.concat([255])).flat()
+                                const dataArray = new Uint8ClampedArray(flattenedRgba)
+                                const imageData = new ImageData(dataArray, width, height)
+                                window.imageData = imageData
+                                context.putImageData(imageData, 0, 0)
+                            }
+                            putImageIntoCanvas(args[0]) // dimensions: width, height, rgb
+                            
+                            //
+                            // dynamic update
+                            //
+                            card.receive = (data) => {
+                                putImageIntoCanvas(data)
+                            }
+                            
+                            //
+                            // create save image button
+                            //
+                            let saveImageButton = document.createElement("div")
+                            saveImageButton.innerHTML = "save"
+                            saveImageButton.classList.add("button")
+                            saveImageButton.onclick = (event) => {
+                                const newTab = window.open('about:blank','image from canvas')
+                                newTab.document.write(`<img src='${canvas.toDataURL("image/png")}' alt='image from canvas' />`)
+                            }
+                            Object.assign(saveImageButton.style, {
+                                position: "absolute",
+                                top: "2rem",
+                                right: "3rem",
+                                opacity: 0,
+                                transition: "all 0.4s ease-in-out 0s",
+                            })
+                            const cardOpacity = "0.7"
+                            saveImageButton.addEventListener("mouseenter", ()=>{
+                                saveImageButton.style.opacity = "1"
+                                saveImageButton.style.backgroundColor = "white"
+                            })
+                            saveImageButton.addEventListener("mouseleave", ()=>{
+                                saveImageButton.style.opacity = cardOpacity
+                            })
+                            
+                            // when card is hovered show the save button
+                            card.addEventListener("mouseenter", ()=>{
+                                saveImageButton.style.opacity = cardOpacity
+                            })
+                            card.addEventListener("mouseleave", ()=>{
+                                saveImageButton.style.opacity = "0"
+                            })
+                            
+                            card.appendChild(canvas)
+                            card.appendChild(saveImageButton)
+                            return card
+                        },
                     }
                 
                 //
@@ -862,7 +953,7 @@ async def index(request):
                             refreshUi()
                             let stopButton = createstopButton()
                             document.body.appendChild(stopButton)
-                            post({ to: window.location.origin+"/web_received_data" })
+                            post({ to: window.location.origin+"/web_received_data" }).catch(errorObject=>null)
                         }, 250)
                     
                     // when there is new (valid) data
@@ -891,13 +982,13 @@ async def index(request):
                                     try {
                                         cardElement.receive(input.data)
                                     } catch (error) {
-                                        silverSpectacle.log(`When data was being send to card<br>id: ${input.cardId}<br>there was an error.<br>The data was: ${JSON.stringify(input)}`)
+                                        silverSpectacle.log(`When data was being sent to card<br>id: ${input.cardId}<br>there was an error.<br>The data was: ${JSON.stringify(input).slice(0,1000)}`)
                                         console.debug(error)
                                     }
                                 }
                             }
-                            // TODO: add more error handling/loggint
-                            post({ to: window.location.origin+"/web_received_data" })
+                            // TODO: add more error handling/logging
+                            post({ to: window.location.origin+"/web_received_data" }).catch(errorObject=>null)
                         })
                         
                     // when server says "i'm stopping"
@@ -1013,6 +1104,7 @@ async def was_data_seen(request):
 async def web_received_data(request):
     global last_time_data_was_viewed
     last_time_data_was_viewed = now()
+    web.Response(text="true")
 
 @routes.post('/new_card')
 async def new_card(request):
