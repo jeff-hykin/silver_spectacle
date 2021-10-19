@@ -24,7 +24,7 @@ debugging = False
 # 
 # server setup
 # 
-app = web.Application(client_max_size=(1024 ** 2 * 10))
+app = web.Application(client_max_size=(1024 ** 2 * 100))
 routes = web.RouteTableDef()
 options = {} if not debugging else dict(logger=True, engineio_logger=True)
 sio = socketio.AsyncServer(async_mode='aiohttp', cors_allowed_origins="*", **options); sio.attach(app)
