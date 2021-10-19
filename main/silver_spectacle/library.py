@@ -166,11 +166,12 @@ def _get_base_url():
         port = _settings["port"]
         return f"http://localhost:{port}"
     
-def _contact_server(endpoint, data=None, catch_all_errors=False, ensure_server_is_up=True):
+def _contact_server(endpoint, data=None, catch_all_errors=False, ensure_server_is_up=True, bypass_purification=False):
     import json
     try:
         # remove complex classes in favor of simple lists/dicts (NOTE: doesn't remove recursive values)
-        data = _to_pure(data)
+        if not bypass_purification:
+            data = _to_pure(data)
         if ensure_server_is_up:
             ensure_server_is_running()
         base_url = _get_base_url()
@@ -248,12 +249,14 @@ class DisplayCard:
         # 
         # first check the table for argument conversions
         # 
+        kwargs = {}
         conversion_table = DisplayCard.conversion_table["init"][interface]
         for pattern, converter in reversed(conversion_table.items()):
             the_type_pattern_does_match = isinstance(pattern, type) and isinstance(arguments[0], pattern)
             the_callable_pattern_check_does_match = not isinstance(pattern, type) and callable(pattern) and each_checker(arguments)
             if the_type_pattern_does_match or the_callable_pattern_check_does_match:
-                arguments = converter(*arguments)
+                arguments, kwargs = converter(*arguments)
+                break
         
         self._interface = interface
         self._created_at = time.time()
@@ -265,26 +268,28 @@ class DisplayCard:
             "arguments": arguments,
         }
         
-        _contact_server("new_card", _card_data)
+        _contact_server("new_card", _card_data, bypass_purification=kwargs.get("bypass_purification", False))
     
-    def _trigger(self, action, data):
+    def _trigger(self, action, data, bypass_purification=False):
         return _contact_server("card_trigger", {
             "time": time.time(),
             "cardId": self.id,
             "action": action,
             "data": data,
-        })
+        }, bypass_purification=bypass_purification)
     
     # send
     def send(self, data):
+        kwargs = {}
         conversion_table = DisplayCard.conversion_table["send"][self._interface]
         for pattern, converter in reversed(conversion_table.items()):
             the_type_pattern_does_match = isinstance(pattern, type) and isinstance(data, pattern)
             the_callable_pattern_check_does_match = not isinstance(pattern, type) and callable(pattern) and each_checker(arguments)
             if the_type_pattern_does_match or the_callable_pattern_check_does_match:
-                data = converter(data)
+                data, kwargs = converter(data)
+                break
         
-        self._trigger("send", data)
+        self._trigger("send", data, bypass_purification=kwargs.get("bypass_purification", False))
 
 # 
 # add converter for numpy
@@ -313,8 +318,8 @@ try:
         
         return array.tolist()
             
-    DisplayCard.conversion_table["init"]["quickImage"][numpy.ndarray] = lambda *args: [ convert_numpy_to_rgba(args[0]), *args[1:] ]
-    DisplayCard.conversion_table["send"]["quickImage"][numpy.ndarray] = lambda arg: DisplayCard.conversion_table["init"]["quickImage"][numpy.ndarray]([arg])[0]
+    DisplayCard.conversion_table["init"]["quickImage"][numpy.ndarray] = lambda *args: ([ convert_numpy_to_rgba(args[0]), *args[1:] ], dict(bypass_purification=True))
+    DisplayCard.conversion_table["send"]["quickImage"][numpy.ndarray] = lambda arg: (DisplayCard.conversion_table["init"]["quickImage"][numpy.ndarray]([arg])[0][0], dict(bypass_purification=True))
 except Exception as error:
     pass
 
@@ -326,8 +331,8 @@ try:
     from PIL import Image
     from PIL.ImageFile import ImageFile
     import numpy
-    DisplayCard.conversion_table["init"]["quickImage"][PIL.ImageFile.ImageFile] = lambda *args: [ convert_numpy_to_rgba(numpy.array(args[0])), *args[1:] ]
-    DisplayCard.conversion_table["send"]["quickImage"][PIL.ImageFile.ImageFile] = lambda arg: DisplayCard.conversion_table["init"]["quickImage"][PIL.ImageFile.ImageFile]([arg])[0]
+    DisplayCard.conversion_table["init"]["quickImage"][PIL.ImageFile.ImageFile] = lambda *args: ([ convert_numpy_to_rgba(numpy.array(args[0])), *args[1:] ], dict(bypass_purification=True))
+    DisplayCard.conversion_table["send"]["quickImage"][PIL.ImageFile.ImageFile] = lambda arg: (DisplayCard.conversion_table["init"]["quickImage"][PIL.ImageFile.ImageFile]([arg])[0][0], dict(bypass_purification=True))
 except Exception as error:
     pass
 
@@ -338,13 +343,8 @@ try:
     import PIL
     from PIL import Image
     import numpy
-    def convert(*args):
-        output = convert_numpy_to_rgba(numpy.array(PIL.Image.open(print(args[0]) or args[0])))
-        return [output]
-        
-    DisplayCard.conversion_table["init"]["quickImage"][str] = lambda *args: [ convert_numpy_to_rgba(numpy.array(PIL.Image.open(print(args[0]) or args[0]))), *args[1:] ]
-    DisplayCard.conversion_table["init"]["quickImage"][str] = convert
-    DisplayCard.conversion_table["send"]["quickImage"][str] = lambda arg: DisplayCard.conversion_table["init"]["quickImage"][str]([arg])[0]
+    DisplayCard.conversion_table["init"]["quickImage"][str] = lambda *args: ([ convert_numpy_to_rgba(numpy.array(PIL.Image.open(print(args[0]) or args[0]))), *args[1:] ], dict(bypass_purification=True))
+    DisplayCard.conversion_table["send"]["quickImage"][str] = lambda arg: (DisplayCard.conversion_table["init"]["quickImage"][str]([arg])[0][0], dict(bypass_purification=True))
 except Exception as error:
     pass
 
