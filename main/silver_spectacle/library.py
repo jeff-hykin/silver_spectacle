@@ -235,9 +235,25 @@ def ensure_server_is_running():
     else:
         return True
 
+from collections import defaultdict
 class DisplayCard:
+    conversion_table = dict(
+        init=defaultdict(lambda: {}),
+        send=defaultdict(lambda: {}),
+    )
+    
     def __init__(self, interface, *arguments):
         global _card_data
+        
+        # 
+        # first check the table for argument conversions
+        # 
+        conversion_table = DisplayCard.conversion_table["init"][interface]
+        for pattern, converter in reversed(conversion_table.items()):
+            the_type_pattern_does_match = isinstance(pattern, type) and isinstance(arguments[0], pattern)
+            the_callable_pattern_check_does_match = not isinstance(pattern, type) and callable(pattern) and each_checker(arguments)
+            if the_type_pattern_does_match or the_callable_pattern_check_does_match:
+                arguments = converter(*arguments)
         
         self._interface = interface
         self._created_at = time.time()
@@ -260,7 +276,78 @@ class DisplayCard:
         })
     
     # send
-    def send(self, data): self._trigger("send", data)
+    def send(self, data):
+        conversion_table = DisplayCard.conversion_table["send"][self._interface]
+        for pattern, converter in reversed(conversion_table.items()):
+            the_type_pattern_does_match = isinstance(pattern, type) and isinstance(data, pattern)
+            the_callable_pattern_check_does_match = not isinstance(pattern, type) and callable(pattern) and each_checker(arguments)
+            if the_type_pattern_does_match or the_callable_pattern_check_does_match:
+                data = converter(data)
+        
+        self._trigger("send", data)
+
+# 
+# add converter for numpy
+# 
+try:
+    import numpy
+    def convert_numpy_to_rgba(array):
+        # remove extra axes
+        array = numpy.squeeze(array)
+        # if grayscale
+        if len(array.shape) == 2:
+            three_dimensions = array.reshape((*array.shape, 1))
+            array = numpy.concatenate(
+                (
+                    three_dimensions,
+                    three_dimensions,
+                    three_dimensions,
+                ),
+                axis=2,
+            )
+        
+        # if rgb format
+        if array.shape[2] == 3:
+            transparency_layer = numpy.ones((array.shape[0], array.shape[1], 1))*255
+            array = numpy.concatenate((array, transparency_layer), axis=2)
+        
+        return array.tolist()
+            
+    DisplayCard.conversion_table["init"]["quickImage"][numpy.ndarray] = lambda *args: [ convert_numpy_to_rgba(args[0]), *args[1:] ]
+    DisplayCard.conversion_table["send"]["quickImage"][numpy.ndarray] = lambda arg: DisplayCard.conversion_table["init"]["quickImage"][numpy.ndarray]([arg])[0]
+except Exception as error:
+    pass
+
+# 
+# add converter for pillow
+# 
+try:
+    import PIL
+    from PIL import Image
+    from PIL.ImageFile import ImageFile
+    import numpy
+    DisplayCard.conversion_table["init"]["quickImage"][PIL.ImageFile.ImageFile] = lambda *args: [ convert_numpy_to_rgba(numpy.array(args[0])), *args[1:] ]
+    DisplayCard.conversion_table["send"]["quickImage"][PIL.ImageFile.ImageFile] = lambda arg: DisplayCard.conversion_table["init"]["quickImage"][PIL.ImageFile.ImageFile]([arg])[0]
+except Exception as error:
+    pass
+
+# 
+# add converter for image path as string
+# 
+try:
+    import PIL
+    from PIL import Image
+    import numpy
+    def convert(*args):
+        output = convert_numpy_to_rgba(numpy.array(PIL.Image.open(print(args[0]) or args[0])))
+        return [output]
+        
+    DisplayCard.conversion_table["init"]["quickImage"][str] = lambda *args: [ convert_numpy_to_rgba(numpy.array(PIL.Image.open(print(args[0]) or args[0]))), *args[1:] ]
+    DisplayCard.conversion_table["init"]["quickImage"][str] = convert
+    DisplayCard.conversion_table["send"]["quickImage"][str] = lambda arg: DisplayCard.conversion_table["init"]["quickImage"][str]([arg])[0]
+except Exception as error:
+    pass
+
 
 # kill the server on exit, unless the data has not been viewed yet
 @atexit.register

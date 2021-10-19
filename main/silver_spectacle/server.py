@@ -24,9 +24,9 @@ debugging = False
 # 
 # server setup
 # 
-app = web.Application()
+app = web.Application(client_max_size=(1024 ** 2 * 10))
 routes = web.RouteTableDef()
-options = {} if not debugging else dict(logger=True, engineio_logger=True,)
+options = {} if not debugging else dict(logger=True, engineio_logger=True)
 sio = socketio.AsyncServer(async_mode='aiohttp', cors_allowed_origins="*", **options); sio.attach(app)
 cards = "{}"
 
@@ -621,6 +621,8 @@ async def index(request):
                     bottom: 30px;
                     right: 30px;
                     width: 10rem;
+                    padding: 1rem;
+                    overflow: scroll;
                 }
             </style>
             <style>
@@ -733,6 +735,7 @@ async def index(request):
                         reconnectionDelayMax : 5000,
                         reconnectionAttempts: Infinity,
                     })
+                    window.socket = socket
                     silverSpectacle.cards = JSON.parse(`'''+cards+r'''`)
                     let streamContainer = document.getElementById("stream-container")
                 
@@ -879,7 +882,6 @@ async def index(request):
                             const canvas = document.createElement("canvas")
                             canvas.style.maxWidth = "100%"
                             canvas.style.maxHeight = "40rem"
-                            canvas.style.height = "40rem"
                             canvas.style.transition = "all 0.25s ease-out 0s"
                             canvas.style.transform = "scale(1.001)" // fixes a pixel glitch
                             canvas.style.width = "unset"
@@ -892,17 +894,35 @@ async def index(request):
                             // add image data
                             //
                             const putImageIntoCanvas = (rgbImage) => {
-                                const context = canvas.getContext("2d")
                                 const width = rgbImage[0].length
                                 const height = rgbImage.length
                                 canvas.height = height
                                 canvas.width = width
+                                if (canvas.height > canvas.width) {
+                                    canvas.style.height = canvas.style.maxHeight
+                                } else {
+                                    canvas.style.width = canvas.style.maxWidth
+                                }
                                 const listOfPixels = rgbImage.flat()
-                                const flattenedRgba = listOfPixels.map(each=>each.concat([255])).flat()
+                                let rgba
+                                if (listOfPixels[0].length != 4) {
+                                    rgba = listOfPixels.map(each=>each.concat([255]))
+                                } else {
+                                    rgba = listOfPixels
+                                }
+                                const flattenedRgba = rgba.flat()
                                 const dataArray = new Uint8ClampedArray(flattenedRgba)
-                                const imageData = new ImageData(dataArray, width, height)
-                                window.imageData = imageData
-                                context.putImageData(imageData, 0, 0)
+                                let imageData
+                                try {
+                                    imageData = new ImageData(dataArray, width, height)
+                                } catch (error) {
+                                    imageData = canvas.getContext("2d").getImageData(0, 0, width, height)
+                                    imageData.data = dataArray
+                                }
+                                try {
+                                    canvas.getContext("2d").putImageData(imageData, 0, 0)
+                                } catch (error) {
+                                }
                                 // update the save button link
                                 saveImageButton.setAttribute("href", canvas.toDataURL("image/png").replace("image/png", "image/octet-stream"))
                             }
@@ -1115,15 +1135,21 @@ async def was_data_seen(request):
 async def web_received_data(request):
     global last_time_data_was_viewed
     last_time_data_was_viewed = now()
-    web.Response(text="true")
+    return web.Response(text="true")
 
 @routes.post('/new_card')
 async def new_card(request):
     global cards
     global last_time_data_was_updated
-    cards = await request.text()
+    try:
+        cards = await request.text()
+    except Exception as error:
+        print('error = ', error)
+    print('backend: awaited request.text')
     last_time_data_was_updated = now()
+    print('backend: emitting new_card')
     await sio.emit('new_card', cards)
+    print('backend: emitted new_card')
     return web.Response(text="null")
 
 @routes.post('/card_trigger')

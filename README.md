@@ -36,6 +36,21 @@ Open the address in your browser and you should see these <br>
 ![quick_scatter_2](https://user-images.githubusercontent.com/17692058/127252592-830874fa-78f4-45ac-84d3-37dbc6cff1bc.png)
 
 
+You can display images
+```python
+import silver_spectacle as ss
+
+# from numpy arrays (grayscale and RGB)
+import numpy
+gray_rectangle = numpy.ones((100, 200, 3)) * (127)
+card = ss.DisplayCard("quickImage", gray_rectangle) 
+
+# if you have Pillow installed, it works with file paths
+import PIL
+card = ss.DisplayCard("quickImage", "./your_image.png")
+```
+
+
 You can also perform live/progressive updates on the charts.
 ```python
 import silver_spectacle as ss
