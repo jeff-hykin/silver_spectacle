@@ -572,15 +572,18 @@ async def index(request):
                     margin-bottom: 4.5rem;
                 }
                 .button {
-                    --accent-color: var(--light-red);
-                    border: 1px solid var(--accent-color);
+                    --accent-color: white;
+                    background-color: var(--light-red);
+                    border: 3px solid var(--accent-color);
                     border-radius: 2rem;
                     padding: 0.6rem 0.8rem;
                     color: var(--accent-color);
                     cursor: pointer;
+                    font-size: 1.1rem;
+                    box-shadow: 0 4px 5px 0 rgba(0,0,0,0.14), 0 1px 10px 0 rgba(0,0,0,0.12), 0 2px 4px -1px rgba(0,0,0,0.3);
                 }
                 .button:hover {
-                    box-shadow: 0 4px 5px 0 rgba(0,0,0,0.14), 0 1px 10px 0 rgba(0,0,0,0.12), 0 2px 4px -1px rgba(0,0,0,0.3);
+                    box-shadow: 0 24px 38px 3px rgba(0,0,0,0.14),0 9px 46px 8px rgba(0,0,0,0.12),0 11px 15px -7px rgba(0,0,0,0.2);
                 }
                 .card {
                     position: relative;
@@ -868,15 +871,22 @@ async def index(request):
                         //
                         quickImage: (args) => {
                             const card = silverSpectacle.createCard({children:[]})
+                            const saveImageButton = document.createElement("a")
                             
                             //
                             // canvas sizing
                             //
                             const canvas = document.createElement("canvas")
                             canvas.style.maxWidth = "100%"
-                            canvas.style.maxHeight = "38rem"
-                            canvas.style.height = "38rem"
+                            canvas.style.maxHeight = "40rem"
+                            canvas.style.height = "40rem"
                             canvas.style.transition = "all 0.25s ease-out 0s"
+                            canvas.style.transform = "scale(1.001)" // fixes a pixel glitch
+                            canvas.style.width = "unset"
+                            canvas.style.padding = "0"
+                            canvas.classList.add("card")
+                            card.style.background = "transparent"
+                            card.style.boxShadow = "unset"
                             
                             //
                             // add image data
@@ -893,6 +903,8 @@ async def index(request):
                                 const imageData = new ImageData(dataArray, width, height)
                                 window.imageData = imageData
                                 context.putImageData(imageData, 0, 0)
+                                // update the save button link
+                                saveImageButton.setAttribute("href", canvas.toDataURL("image/png").replace("image/png", "image/octet-stream"))
                             }
                             putImageIntoCanvas(args[0]) // dimensions: width, height, rgb
                             
@@ -906,13 +918,14 @@ async def index(request):
                             //
                             // create save image button
                             //
-                            let saveImageButton = document.createElement("div")
                             saveImageButton.innerHTML = "save"
                             saveImageButton.classList.add("button")
-                            saveImageButton.onclick = (event) => {
-                                const newTab = window.open('about:blank','image from canvas')
-                                newTab.document.write(`<img src='${canvas.toDataURL("image/png")}' alt='image from canvas' />`)
-                            }
+                            // saveImageButton.onclick = (event) => {
+                            //     const newTab = window.open('about:blank','image from canvas')
+                            //     newTab.document.write(`<img src='${canvas.toDataURL("image/png")}' alt='image from canvas' />`)
+                            // }
+                            const cardOpacity = "0.7"
+                            const hoverBackground = "rgba(255,255,255,0.4)"
                             Object.assign(saveImageButton.style, {
                                 position: "absolute",
                                 top: "2rem",
@@ -920,10 +933,8 @@ async def index(request):
                                 opacity: 0,
                                 transition: "all 0.4s ease-in-out 0s",
                             })
-                            const cardOpacity = "0.7"
                             saveImageButton.addEventListener("mouseenter", ()=>{
                                 saveImageButton.style.opacity = "1"
-                                saveImageButton.style.backgroundColor = "white"
                             })
                             saveImageButton.addEventListener("mouseleave", ()=>{
                                 saveImageButton.style.opacity = cardOpacity
