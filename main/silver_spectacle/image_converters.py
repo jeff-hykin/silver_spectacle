@@ -56,7 +56,6 @@ def register_image(file_as_bytes, file_extension=".png"):
 # 
 unknown_iterable = lambda each: _is_iterable(each) and type(each) != str
 def unknown_iterable_init(iterable, *args):
-    print('iterable = ', iterable)
     png_btyes = None
     try:
         png_btyes = array_to_png(iterable)
@@ -71,7 +70,6 @@ def unknown_iterable_init(iterable, *args):
     url_extension = register_image(png_btyes)
     new_arguments = [ url_extension, *args ]
     special_options = dict()
-    print('new_arguments = ', new_arguments)
     return new_arguments, special_options
     
 DisplayCard.conversion_table["init"]["quickImage"][unknown_iterable] = unknown_iterable_init
@@ -96,48 +94,6 @@ def image_string_init(file_path, *args):
     return new_arguments, special_options
 DisplayCard.conversion_table["init"]["quickImage"][str] = image_string_init
 DisplayCard.conversion_table["send"]["quickImage"][str] = lambda arg: (image_string_init(arg)[0][0], dict())
-
-# # 
-# # add converter for numpy
-# # 
-# try:
-#     import numpy
-#     from numpngw import write_png
-#     import io
-#     def convert_numpy_to_rgba(array):
-#         # remove extra axes
-#         array = numpy.squeeze(array)
-#         # if grayscale
-#         if len(array.shape) == 2:
-#             three_dimensions = array.reshape((*array.shape, 1))
-#             array = numpy.concatenate(
-#                 (
-#                     three_dimensions,
-#                     three_dimensions,
-#                     three_dimensions,
-#                 ),
-#                 axis=2,
-#             )
-        
-#         # if rgb format
-#         if array.shape[2] == 3:
-#             transparency_layer = numpy.ones((array.shape[0], array.shape[1], 1))*255
-#             array = numpy.concatenate((array, transparency_layer), axis=2)
-        
-#         return array.tolist()
-
-#     def array_to_png(array):
-#         stream = io.BytesIO(b"")
-#         # writes to btyes object instead of a file
-#         write_png(stream, array)
-#         return stream_str.getvalue()
-    
-#     DisplayCard.conversion_table["init"]["quickImage"][numpy.ndarray] = lambda *args: ([ convert_numpy_to_rgba(args[0]), *args[1:] ], dict(bypass_purification=True))
-#     DisplayCard.conversion_table["send"]["quickImage"][numpy.ndarray] = lambda arg: (DisplayCard.conversion_table["init"]["quickImage"][numpy.ndarray]([arg])[0][0], dict(bypass_purification=True))
-# except Exception as error:
-#     pass
-
-
 
 # # 
 # # add converter for pillow

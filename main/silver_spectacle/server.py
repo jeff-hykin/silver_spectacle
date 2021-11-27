@@ -19,7 +19,7 @@ args = parser.parse_args()
 # globals 
 last_time_data_was_viewed = -math.inf
 last_time_data_was_updated = now()
-debugging = True
+debugging = False
 
 # 
 # server setup
@@ -1186,17 +1186,11 @@ async def set_large_data(request : web.Request):
     content_type = request.match_info["content_type"]
     content_type = content_type.replace(r"%2F", "/")
     large_data_id = request.match_info["data_id"]
-    print('content_type = ', content_type)
-    print('large_data_id = ', large_data_id)
     # save in ram
     post_result = await request.post()
-    print('post_result = ', post_result)
     large_file = post_result.get("file")
-    print('large_file = ', large_file)
     if large_file is not None:
         large_data[large_data_id] = large_file.file.read()
-        print('type(large_data[large_data_id]) = ', type(large_data[large_data_id]))
-        print('len(large_data[large_data_id]) = ', len(large_data[large_data_id]))
     return web.Response(text="null")
 
 @routes.get('/large/get/{content_type}/{data_id}')
