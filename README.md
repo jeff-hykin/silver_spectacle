@@ -40,13 +40,11 @@ You can display images
 ```python
 import silver_spectacle as ss
 
-# from numpy arrays (grayscale and RGB)
 import numpy
-gray_rectangle = numpy.ones((100, 200, 3)) * (127)
-card = ss.DisplayCard("quickImage", gray_rectangle) 
+grayscale_or_rgb = numpy.ones((100, 200, 3)) * (127) 
+# doesn't even need to be a numpy array
+card = ss.DisplayCard("quickImage", grayscale_or_rgb) 
 
-# if you have Pillow installed, it works with file paths
-import PIL
 card = ss.DisplayCard("quickImage", "./your_image.png")
 ```
 
@@ -71,7 +69,16 @@ NOTE: Currently live updates need to be sent after the browser window is loaded.
 NOTE: Currently each `.send()` depends on the type of card (the interface). For example the arguments for `quickScatter` can be different from `chartjs`.
 
 
-## What kind of plots can it do?
+## What are the available cards?
+
+```python
+ss.DisplayCard("chartjs", config) # does everything: see https://www.chartjs.org/docs/latest/general/data-structures.html
+ss.DisplayCard("quickImage", numpy_image_or_filepath)
+ss.DisplayCard("quickScatter", list_of_x_y_pairs)
+ss.DisplayCard("quickLine", list_of_x_y_pairs)
+```
+
+## What kind of plots are possible?
 
 If [Chart JS](https://www.chartjs.org/docs/latest/general/data-structures.html) has it, then it is already available in this library. More visualization libraries like [plotly](https://plotly.com/javascript/3d-charts/) will be added to enable additional 2D plots, 3D charts, video/image integration, etc.
 <br>

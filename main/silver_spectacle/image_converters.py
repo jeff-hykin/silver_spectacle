@@ -32,7 +32,7 @@ def array_to_png(array):
     rows = [tuple([0]*size_of_each_row)]*height
     for row_index in range(0,height):
         rows[row_index] = tuple(flatten(
-            array[row_index][column_index] for column_index in range(0,width)
+            reversed(array[row_index][column_index]) for column_index in range(0,width)
         ))
     # writes to btyes object instead of a file
     png.from_array(rows, mode).write(stream)
@@ -56,24 +56,26 @@ def register_image(file_as_bytes, file_extension=".png"):
 # 
 unknown_iterable = lambda each: _is_iterable(each) and type(each) != str
 def unknown_iterable_init(iterable, *args):
+    print('iterable = ', iterable)
     png_btyes = None
     try:
         png_btyes = array_to_png(iterable)
     except Exception as error:
         print(f'[silver_spectacle] Tried to convert a value to a png image, but failed')
-        print(f'[silver_spectacle] Make sure your object follows the same structure has this library: https://pypi.org/project/pypng/')
+        print(f'[silver_spectacle] Make sure your object follows the same structure opencv images')
         print(f'[silver_spectacle] Argument was {iterable}')
         length = len(iterable)
         print(f'[silver_spectacle] len(Argument) was {length}')
         raise error
     
-    url_extension = register_image(file_as_bytes)
+    url_extension = register_image(png_btyes)
     new_arguments = [ url_extension, *args ]
     special_options = dict()
+    print('new_arguments = ', new_arguments)
     return new_arguments, special_options
     
-    DisplayCard.conversion_table["init"]["quickImage"][unknown_iterable] = unknown_iterable_init
-    DisplayCard.conversion_table["send"]["quickImage"][unknown_iterable] = lambda arg: (unknown_iterable_init([arg])[0][0], dict())
+DisplayCard.conversion_table["init"]["quickImage"][unknown_iterable] = unknown_iterable_init
+DisplayCard.conversion_table["send"]["quickImage"][unknown_iterable] = lambda arg: (unknown_iterable_init(arg)[0][0], dict())
 
 # 
 # add converter for image path as string
@@ -93,7 +95,7 @@ def image_string_init(file_path, *args):
     special_options = dict()
     return new_arguments, special_options
 DisplayCard.conversion_table["init"]["quickImage"][str] = image_string_init
-DisplayCard.conversion_table["send"]["quickImage"][str] = lambda arg: (image_string_init([arg])[0][0], dict())
+DisplayCard.conversion_table["send"]["quickImage"][str] = lambda arg: (image_string_init(arg)[0][0], dict())
 
 # # 
 # # add converter for numpy

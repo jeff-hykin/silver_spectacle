@@ -19,7 +19,7 @@ args = parser.parse_args()
 # globals 
 last_time_data_was_viewed = -math.inf
 last_time_data_was_updated = now()
-debugging = False
+debugging = True
 
 # 
 # server setup
@@ -29,9 +29,12 @@ routes = web.RouteTableDef()
 options = {} if not debugging else dict(logger=True, engineio_logger=True)
 sio = socketio.AsyncServer(async_mode='aiohttp', cors_allowed_origins="*", **options); sio.attach(app)
 cards = "{}"
+large_data = {}
+
+if debugging: print('starting server') 
 
 @routes.get('/')
-async def index(request): 
+async def index(request : web.Request): 
     global cards
     global last_time_data_was_viewed
     output = r'''
@@ -870,6 +873,48 @@ async def index(request):
                         },
                         
                         //
+                        // Quick Line
+                        //
+                        quickLine: (args) => {
+                            const config = {
+                                type: "line",
+                                data: {
+                                datasets: [
+                                        {
+                                            label: "Quick Line",
+                                            data: args[0].map(([x, y])=>({x,y})),
+                                            backgroundColor: "rgb(100, 92, 192, 0.9)",
+                                            borderColor: "rgb(100, 92, 192, 0.9)",
+                                            color: "rgb(100, 92, 192, 0.9)",
+                                        },
+                                    ],
+                                },
+                                options: {
+                                    pointRadius: 3,
+                                    pointHoverRadius: 8,
+                                    scales: {
+                                        x: {
+                                            type: "linear",
+                                            position: "bottom",
+                                        },
+                                        y: {
+                                            type: "linear",
+                                            position: "left",
+                                        },
+                                    },
+                                },
+                            }
+                            let card = silverSpectacle.createComponent("chartjs", config)
+                            // sender callback
+                            card.receive = ([x,y]) => {
+                                console.debug(card)
+                                card.chartJsChart.data.datasets[0].data.push({x,y})
+                                card.chartJsChart.update()
+                            }
+                            return card
+                        },
+                        
+                        //
                         // Quick Image
                         //
                         quickImage: (args) => {
@@ -879,16 +924,16 @@ async def index(request):
                             //
                             // canvas sizing
                             //
-                            const canvas = document.createElement("canvas")
-                            canvas.style.maxWidth = "100%"
-                            canvas.style.maxHeight = "40rem"
-                            canvas.style.transition = "all 0.25s ease-out 0s"
-                            canvas.style.transform = "scale(1.001)" // fixes a pixel glitch
-                            canvas.style.width = "unset"
-                            canvas.style.padding = "0"
-                            canvas.classList.add("card")
-                            card.style.background = "transparent"
-                            card.style.boxShadow = "unset"
+                            // const canvas = document.createElement("canvas")
+                            // canvas.style.maxWidth = "100%"
+                            // canvas.style.maxHeight = "40rem"
+                            // canvas.style.transition = "all 0.25s ease-out 0s"
+                            // canvas.style.transform = "scale(1.001)" // fixes a pixel glitch
+                            // canvas.style.width = "unset"
+                            // canvas.style.padding = "0"
+                            // canvas.classList.add("card")
+                            // card.style.background = "transparent"
+                            // card.style.boxShadow = "unset"
                             
                             //
                             // add image data
@@ -926,50 +971,24 @@ async def index(request):
                                 // update the save button link
                                 saveImageButton.setAttribute("href", canvas.toDataURL("image/png").replace("image/png", "image/octet-stream"))
                             }
-                            putImageIntoCanvas(args[0]) // dimensions: width, height, rgb
+                            // putImageIntoCanvas(args[0]) // dimensions: width, height, rgb
+                            const putImageIntoCard = (imageExtension)=> {
+                                const imageElement = document.createElement("img")
+                                imageElement.src = "/large/get/"+imageExtension
+                                imageElement.style.width = "100%"
+                                imageElement.style.imageRendering = "crisp-edges"
+                                card.innerHTML = ""
+                                card.appendChild(imageElement)
+                            }
                             
                             //
                             // dynamic update
                             //
-                            card.receive = (data) => {
-                                putImageIntoCanvas(data)
+                            card.receive = (imageExtension) => {
+                                putImageIntoCard(imageExtension)
                             }
                             
-                            //
-                            // create save image button
-                            //
-                            saveImageButton.innerHTML = "save"
-                            saveImageButton.classList.add("button")
-                            // saveImageButton.onclick = (event) => {
-                            //     const newTab = window.open('about:blank','image from canvas')
-                            //     newTab.document.write(`<img src='${canvas.toDataURL("image/png")}' alt='image from canvas' />`)
-                            // }
-                            const cardOpacity = "0.7"
-                            const hoverBackground = "rgba(255,255,255,0.4)"
-                            Object.assign(saveImageButton.style, {
-                                position: "absolute",
-                                top: "2rem",
-                                right: "3rem",
-                                opacity: 0,
-                                transition: "all 0.4s ease-in-out 0s",
-                            })
-                            saveImageButton.addEventListener("mouseenter", ()=>{
-                                saveImageButton.style.opacity = "1"
-                            })
-                            saveImageButton.addEventListener("mouseleave", ()=>{
-                                saveImageButton.style.opacity = cardOpacity
-                            })
-                            
-                            // when card is hovered show the save button
-                            card.addEventListener("mouseenter", ()=>{
-                                saveImageButton.style.opacity = cardOpacity
-                            })
-                            card.addEventListener("mouseleave", ()=>{
-                                saveImageButton.style.opacity = "0"
-                            })
-                            
-                            card.appendChild(canvas)
-                            card.appendChild(saveImageButton)
+                            putImageIntoCard(args[0])
                             return card
                         },
                     }
@@ -1114,17 +1133,17 @@ async def index(request):
     return web.Response(text=output, content_type='text/html')
 
 @routes.post('/ping')
-async def ping(request):
+async def ping(request : web.Request):
     return web.Response(text='"pong"')
 
 @routes.post('/stop')
-async def stop(request):
+async def stop(request : web.Request):
     await sio.emit('stop:response', '"imded"')
     exit()
     return web.Response(text='"imded"')
 
 @routes.post('/was_data_seen')
-async def was_data_seen(request):
+async def was_data_seen(request : web.Request):
     # if data was viewed more recently than it was updated
     if last_time_data_was_viewed >= last_time_data_was_updated:
         return web.Response(text="true")
@@ -1132,13 +1151,13 @@ async def was_data_seen(request):
         return web.Response(text="false")
 
 @routes.post('/web_received_data')
-async def web_received_data(request):
+async def web_received_data(request : web.Request):
     global last_time_data_was_viewed
     last_time_data_was_viewed = now()
     return web.Response(text="true")
 
 @routes.post('/new_card')
-async def new_card(request):
+async def new_card(request : web.Request):
     global cards
     global last_time_data_was_updated
     try:
@@ -1153,13 +1172,43 @@ async def new_card(request):
     return web.Response(text="null")
 
 @routes.post('/card_trigger')
-async def card_trigger(request):
+async def card_trigger(request : web.Request):
     global cards
     global last_time_data_was_updated
     data = await request.text()
     last_time_data_was_updated = now()
     await sio.emit('card_trigger', data)
     return web.Response(text="null")
+
+@routes.post('/large/set/{content_type}/{data_id}')
+async def set_large_data(request : web.Request):
+    global large_data
+    content_type = request.match_info["content_type"]
+    content_type = content_type.replace(r"%2F", "/")
+    large_data_id = request.match_info["data_id"]
+    print('content_type = ', content_type)
+    print('large_data_id = ', large_data_id)
+    # save in ram
+    post_result = await request.post()
+    print('post_result = ', post_result)
+    large_file = post_result.get("file")
+    print('large_file = ', large_file)
+    if large_file is not None:
+        large_data[large_data_id] = large_file.file.read()
+        print('type(large_data[large_data_id]) = ', type(large_data[large_data_id]))
+        print('len(large_data[large_data_id]) = ', len(large_data[large_data_id]))
+    return web.Response(text="null")
+
+@routes.get('/large/get/{content_type}/{data_id}')
+async def get_large_data(request : web.Request):
+    global large_data
+    content_type = request.match_info["content_type"]
+    content_type = content_type.replace(r"%2F", "/")
+    large_data_id = request.match_info["data_id"]
+    return web.Response(
+        content_type=content_type,
+        body=large_data[large_data_id],
+    )
 
 # 
 # start server
