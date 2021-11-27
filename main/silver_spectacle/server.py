@@ -879,13 +879,15 @@ async def index(request : web.Request):
                             const config = {
                                 type: "line",
                                 data: {
-                                datasets: [
+                                    datasets: [
                                         {
                                             label: "Quick Line",
                                             data: args[0].map(([x, y])=>({x,y})),
                                             backgroundColor: "rgb(100, 92, 192, 0.9)",
                                             borderColor: "rgb(100, 92, 192, 0.9)",
                                             color: "rgb(100, 92, 192, 0.9)",
+                                            cubicInterpolationMode: 'monotone',
+                                            tension: 0.4,
                                         },
                                     ],
                                 },
