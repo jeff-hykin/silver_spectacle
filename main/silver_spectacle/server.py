@@ -1148,16 +1148,17 @@ async def index(request : web.Request):
                 //
                     silverSpectacle.interface = {
                         //
-                        // Quick Title
+                        // Quick Markdown
                         //
-                        quickLine: (args) => {
-                            const title = document.createElement("h1")
-                            let card = silverSpectacle.createCard({ children: [ ], })
-                            // sender callback
-                            card.receive = ([x,y]) => {
-                                console.debug(card)
-                                card.chartJsChart.data.datasets[0].data.push({x,y})
-                                card.chartJsChart.update()
+                        quickMarkdown: (args) => {
+                            const card = silverSpectacle.createCard({
+                                children: [
+                                    Milkdown({ readonly: true, contentString: args[0] })
+                                ],
+                            })
+                            card.receive = (newString) => {
+                                card.innerHTML = ""
+                                card.appendChild(Milkdown({ readonly: true, contentString: newString }))
                             }
                             return card
                         },
