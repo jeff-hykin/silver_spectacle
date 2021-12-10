@@ -43,6 +43,7 @@ async def index(request : web.Request):
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <link rel="stylesheet" href="https://unpkg.com/css-baseline/css/3.css"> 
             <script>
                 /*!
                 * Socket.IO v4.0.1
@@ -648,6 +649,8 @@ async def index(request : web.Request):
             // wrapper (to avoid polluting the global namespace)
             //
             ;((()=>{
+                // create the stop button immediately (so that critical errors can be resolved)
+                document.body.appendChild(createstopButton())
                 
                 //
                 //
@@ -1003,8 +1006,6 @@ async def index(request : web.Request):
                     // right after page loads
                     setTimeout(()=>{
                             refreshUi()
-                            let stopButton = createstopButton()
-                            document.body.appendChild(stopButton)
                             post({ to: window.location.origin+"/web_received_data" }).catch(errorObject=>null)
                         }, 250)
                     
@@ -1080,7 +1081,15 @@ async def index(request : web.Request):
                     silverSpectacle.createComponent = function(theInterface, ...args) {
                             const creationInterface = silverSpectacle.interface[theInterface]
                             if (creationInterface instanceof Function) {
-                                return creationInterface(args)
+                                try {
+                                    return creationInterface(args)
+                                } catch (error) {
+                                    const element = document.createElement("div")
+                                    element.classList.add("card")
+                                    element.style.backgroundColor = "coral"
+                                    element.style.color = "red"
+                                    element.innerHTML = `There was an issue with the card:<span>${error}</span>`
+                                }
                             } else {
                                 silverSpectacle.log(`[ERROR] python tried to create a {JSON.stringify(theInterface)} interface\nHowever that isn't one of the available interfaces\nThe current list is ${JSON.stringify(Object.keys(silverSpectacle.interface))}\nThe arguments for that card were: ${JSON.stringify(args)}`)
                             }
