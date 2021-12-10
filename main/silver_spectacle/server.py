@@ -1166,14 +1166,20 @@ async def index(request : web.Request):
                         // Quick Markdown
                         //
                         quickMarkdown: (args) => {
-                            const card = silverSpectacle.createCard({
-                                children: [
-                                    Milkdown({ readonly: true, contentString: args[0] })
-                                ],
-                            })
+                            const createMarkdownCard = (text) => {
+                                const markdownItself = Milkdown({ readonly: true, contentString: text, style: { transform: "scale(1.1)" } })
+                                const card = silverSpectacle.createCard({
+                                    children: [
+                                        markdownItself
+                                    ],
+                                })
+                                card.style.overflow = "hidden"
+                                return card
+                            }
+                            let card = createMarkdownCard(args[0])
                             card.receive = (newString) => {
                                 card.innerHTML = ""
-                                card.appendChild(Milkdown({ readonly: true, contentString: newString }))
+                                card.appendChild(createMarkdownCard(newString))
                             }
                             return card
                         },
