@@ -81,11 +81,11 @@ ss.DisplayCard("chartjs", config) # does tons: see https://www.chartjs.org/docs/
 
 ## What kind of plots are possible?
 
-If [Chart JS](https://www.chartjs.org/docs/latest/general/data-structures.html) has it, then it is already available in this library. More visualization libraries like [plotly](https://plotly.com/javascript/3d-charts/) will be added to enable additional 2D plots, 3D charts, video/image integration, etc.
+If [Chart JS](https://www.chartjs.org/docs/latest/general/data-structures.html) has it, then it is already available in this library. (More visualization libraries like [plotly](https://plotly.com/javascript/3d-charts/) will be added to enable additional 2D plots, 3D charts, video/image integration, etc.)
 <br>
 
-To use one of their charts:
-- Go to [Chart JS's website](https://www.chartjs.org/docs/latest/general/data-structures.html)
+To use a ChartJS chart:
+- Go to [their website](https://www.chartjs.org/docs/latest/general/data-structures.html)
 - Find a plot, such as [this line chart](https://www.chartjs.org/docs/latest/charts/line.html)
 - Then do a near 1-to-1 mapping to python
 
@@ -185,7 +185,7 @@ There is some additional documentation below for fully fledged customization of 
 
 ## Whats the status of the library?
 
-There are many planned features. This library is under active development, and has not been optimized. However, the API is stable, and effectively all changes will only be adding tools to the toolbox. Some of the planned features are small:
+There are many planned features. This library is under active development. However, the API is stable, and effectively all changes will only be adding tools to the toolbox. Some of the planned features are small:
   - adding a button for clearing the screen of existing graphs
   - an option to save/load all visual data to a file
   - better interfaces for graphs that incrementally update
@@ -212,13 +212,13 @@ Development will, more than likely, be sporadic, PR's are welcome.
 
 ## How does it work? 
 
-- The system uses `socket.io` and `aiohttp` to get a push notification-like effect within browser windows.
 - Everytime the `display` function is called the library checks if the display server is running (using an http request). If the server is not running, then it starts the server as a subprocess in the background. It waits until the server is responding, then it uses http requests to tell the server about the data it wants to display.
 - The server does two things
     1. It embeds this data into the html as JSON data. This way any newly-opened pages already have all the available data. In terms of files, the server only serves the one html+js+css file.
     2. When the backend gets a http display request from the python process, it uses socket.io to notify all existing browser windows about the new data. 
-- This seems trivial, but it is important: exising browser windows do not replace existing data with incoming data. That would be bad because browser windows can be open longer than both the server process or python process. So, the browser window can have more information than the server does. For that reason, all data is timestamped and stored inside the global `displayRequests` variable. Those timestamps are used as keys, allowing the browser windows to simply merge incoming data without duplication and without losing old information.
-- On the graphical side, the browser iterates over all the display commands, creating a chart for each one, wrapping the chart in a thin container, and placing it into a vertical list. This vertical list is displayed in reverse; the most-recent graph is at the top.
+- For live updates, the system uses `socket.io` and `aiohttp` to get a push notification-like effect within browser windows.
+- This seems trivial, but it is important: existing browser windows do not overwrite existing data with incoming data. That would be bad because browser windows can be open longer than both the server process or python process. So, the browser window can have more information than the server does. For that reason, all data is timestamped and stored inside the global `displayRequests` variable. Those timestamps are used as keys, allowing the browser windows to simply merge incoming data without duplication and without losing old information.
+- On the graphical side, the browser iterates over all the display commands, creating a chart for each one, and places them into a vertical list. This vertical list is displayed in reverse; the most-recent graph is at the top.
 - Thats it!
 
 
