@@ -1020,6 +1020,7 @@ async def index(request : web.Request):
                     cursor: pointer;
                     font-size: 1.1rem;
                     box-shadow: 0 4px 5px 0 rgba(0,0,0,0.14), 0 1px 10px 0 rgba(0,0,0,0.12), 0 2px 4px -1px rgba(0,0,0,0.3);
+                    outline: none;
                 }
                 .button:hover {
                     box-shadow: 0 24px 38px 3px rgba(0,0,0,0.14),0 9px 46px 8px rgba(0,0,0,0.12),0 11px 15px -7px rgba(0,0,0,0.2);
@@ -1035,6 +1036,7 @@ async def index(request : web.Request):
                     align-items: center; /* vertical */ 
                     justify-content: center; /* horizontal */
                     transition: all 0.2s ease-in-out 0s;
+                    box-sizing: border-box;
                     width: 100%;
                     min-height: 5rem;
                 }
@@ -1062,6 +1064,14 @@ async def index(request : web.Request):
                     width: 15rem;
                     padding: 1rem;
                     overflow: auto;
+                }
+                body div .milkdown .editor {
+                    --milkdown-vertical-padding: 0;
+                    --milkdown-horizontal-padding: 3.25rem;
+                    padding-top: var(--milkdown-vertical-padding);
+                    padding-bottom: var(--milkdown-vertical-padding);
+                    padding-left: var(--milkdown-horizontal-padding);
+                    padding-right: var(--milkdown-horizontal-padding);
                 }
             </style>
             <style>
@@ -1191,13 +1201,16 @@ async def index(request : web.Request):
                         //
                         quickMarkdown: (args) => {
                             const createMarkdownCard = (text) => {
-                                const markdownItself = Milkdown({ readonly: true, contentString: text, style: { transform: "scale(1.1)" } })
+                                text = text.replace("\n\n", "\n&nbsp;\n").replace(/<br\/?>/, "&nbsp;").replace(/\\<br>/, "\\<br>").replace(/\\<br\/>/, "\\<br/>")
+                                const markdownItself = Milkdown({ readonly: true, contentString: text, style: { width: "100%", height: "fit-content" } })
                                 const card = silverSpectacle.createCard({
                                     children: [
                                         markdownItself
                                     ],
                                 })
                                 card.style.overflow = "hidden"
+                                card.style.padding = 0
+                                card.style.marginBottom = "1rem"
                                 return card
                             }
                             let card = createMarkdownCard(args[0])
