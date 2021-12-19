@@ -1306,7 +1306,7 @@ async def index(request : web.Request):
                                 throw Exception(`quickLine needs an array [[x1,y1],[x2,y2] ...] but it got this instead:\n    ${JSON.stringify(data)}`)
                             }
                             // if single numbers instead of pairs
-                            if (! _.isNan(_.toNumber(data[0])) ) {
+                            if (! _.isNaN(_.toNumber(data[0])) ) {
                                 // make them pairs
                                 data = data.map((each,index)=>([index,each]))
                             }
