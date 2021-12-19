@@ -72,10 +72,11 @@ NOTE: Currently each `.send()` depends on the type of card (the interface). For 
 ## What are the available cards?
 
 ```python
-ss.DisplayCard("chartjs", config) # does everything: see https://www.chartjs.org/docs/latest/general/data-structures.html
-ss.DisplayCard("quickImage", numpy_image_or_filepath)
 ss.DisplayCard("quickScatter", list_of_x_y_pairs)
 ss.DisplayCard("quickLine", list_of_x_y_pairs)
+ss.DisplayCard("quickImage", numpy_image_or_filepath)
+ss.DisplayCard("quickMarkdown", markdown_text)
+ss.DisplayCard("chartjs", config) # does tons: see https://www.chartjs.org/docs/latest/general/data-structures.html
 ```
 
 ## What kind of plots are possible?
@@ -180,7 +181,7 @@ ss.DisplayCard("chartjs", {
 
 ## Documentation?
 
-There is some additional documentation below for fully fledged customization of the javascript and css. However, this readme is currently all of the documentation. The power is in the flexibilty, not in the breadth of tools. Don't be afraid to open an issue asking for examples.
+There is some additional documentation below for fully fledged customization of the javascript and css. However, this readme is currently all of the documentation. The power is in the flexibilty, not in the quantity of methods. Don't be afraid to open an issue asking for examples.
 
 ## Whats the status of the library?
 
@@ -191,12 +192,12 @@ There are many planned features. This library is under active development, and h
   - working with numpy/pytorch/tensorflow tensors without needing to convert
 
 Other features will be a major additions 
-  - tools for displaying images/videos
+  - tools for displaying videos
   - integration with 3D plot libraries
   - a simple system for combining/shaping graphs
   - a theming system
   - better visual notifications for errors
-  - a simple interface for graphical plugins (buttons)
+  - a simple interface for graphical plugins (buttons/sliders)
  
 Development will, more than likely, be sporadic, PR's are welcome.
 

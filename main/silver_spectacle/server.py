@@ -953,6 +953,29 @@ async def index(request : web.Request):
                 body {
                     font-family: sans-serif;
                 }
+                
+                :root {
+                    --css-baseline-scrollbar-background: lightgray;
+                    --css-baseline-scrollbar-foreground: dimgray;
+                }
+
+                * {
+                    scrollbar-color: var(--css-baseline-scrollbar-foreground) var(--css-baseline-scrollbar-background);
+                }
+
+                *::-webkit-scrollbar {
+                    width: 10px;
+                }
+
+                *::-webkit-scrollbar-track {
+                    background: var(--css-baseline-scrollbar-background);
+                }
+
+                *::-webkit-scrollbar-thumb {
+                    background-color: var(--css-baseline-scrollbar-foreground);
+                    border: 2px solid var(--css-baseline-scrollbar-background);
+                    border-radius: 20px;
+                }
             </style>
             <style>
                 :root {
@@ -970,7 +993,8 @@ async def index(request : web.Request):
                     justify-content: flex-start; /* vertical */
                     background-color: var(--very-background);
                     max-width: 100vw;
-                    overflow: scroll;
+                    overflow-x: hidden;
+                    overflow-y: scroll;
                 }
                 #stream-container {
                     display: flex;
@@ -1035,9 +1059,9 @@ async def index(request : web.Request):
                     position: fixed;
                     bottom: 30px;
                     right: 30px;
-                    width: 10rem;
+                    width: 15rem;
                     padding: 1rem;
-                    overflow: scroll;
+                    overflow: auto;
                 }
             </style>
             <style>
@@ -1277,13 +1301,22 @@ async def index(request : web.Request):
                         // Quick Scatter
                         //
                         quickScatter: (args) => {
+                            let data = args[0]
+                            if (!(data instanceof Array)) {
+                                throw Exception(`quickLine needs an array [[x1,y1],[x2,y2] ...] but it got this instead:\n    ${JSON.stringify(data)}`)
+                            }
+                            // if single numbers instead of pairs
+                            if (! _.isNan(_.toNumber(data[0])) ) {
+                                // make them pairs
+                                data = data.map((each,index)=>([index,each]))
+                            }
                             const config = {
                                 type: "scatter",
                                 data: {
                                 datasets: [
                                         {
                                             label: "Quick Scatter",
-                                            data: args[0].map(([x, y])=>({x,y})),
+                                            data: data.map(([x, y])=>({x,y})),
                                             backgroundColor: "#f07178",
                                         },
                                     ],
@@ -1313,13 +1346,23 @@ async def index(request : web.Request):
                         // Quick Line
                         //
                         quickLine: (args) => {
+                            let data = args[0]
+                            if (!(data instanceof Array)) {
+                                throw Exception(`quickLine needs an array [[x1,y1],[x2,y2] ...] but it got this instead:\n    ${JSON.stringify(data)}`)
+                            }
+                            // if single numbers instead of pairs
+                            if (! _.isNaN(_.toNumber(data[0])) ) {
+                                // make them pairs
+                                data = data.map((each,index)=>([index,each]))
+                            }
+                            
                             const config = {
                                 type: "line",
                                 data: {
                                     datasets: [
                                         {
                                             label: "Quick Line",
-                                            data: args[0].map(([x, y])=>({x,y})),
+                                            data: data.map(([x, y])=>({x,y})),
                                             backgroundColor: "rgb(100, 92, 192, 0.9)",
                                             borderColor: "rgb(100, 92, 192, 0.9)",
                                             color: "rgb(100, 92, 192, 0.9)",
@@ -1520,11 +1563,11 @@ async def index(request : web.Request):
                                 try {
                                     return creationInterface(args)
                                 } catch (error) {
-                                    const element = document.createElement("div")
-                                    element.classList.add("card")
+                                    const element = silverSpectacle.createCard({})
                                     element.style.backgroundColor = "coral"
-                                    element.style.color = "red"
+                                    element.style.color = "white"
                                     element.innerHTML = `There was an issue with the card:<span>${error}</span>`
+                                    return element
                                 }
                             } else {
                                 silverSpectacle.log(`[ERROR] python tried to create a {JSON.stringify(theInterface)} interface\nHowever that isn't one of the available interfaces\nThe current list is ${JSON.stringify(Object.keys(silverSpectacle.interface))}\nThe arguments for that card were: ${JSON.stringify(args)}`)
@@ -1533,7 +1576,7 @@ async def index(request : web.Request):
 
                     silverSpectacle.createCard = function({ children, style, ...data }) {
                             style = {...style}
-                            children = [...children]
+                            children = children||[]
                             let div = document.createElement("div")
                             div.classList.add("card")
                             if (typeof data.class == 'string') {
