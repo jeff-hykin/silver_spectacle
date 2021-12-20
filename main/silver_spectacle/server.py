@@ -982,8 +982,16 @@ async def index(request : web.Request):
                     --font-color: black;
                     --light-red: #f07178;
                     --solid-red: #ff5572;
-                    --very-background: whitesmoke;
-                    --card-background: white;
+                    --back-distance-1: whitesmoke;
+                    --back-distance-2: white;
+                    --dark-theme--back-distance-1: rgb(46,52,64,0.9);
+                    --dark-theme--back-distance-2: rgb(46,52,64,0.9);
+                    /* milkdown vars */
+                    --neutral: 236, 239, 244 !important;
+                    --solid: 216, 222, 233 !important;
+                    --line: 67, 76, 94 !important;
+                    --background: 37, 41, 50 !important;
+                    --surface: 46, 52, 64 !important;
                 }
                 /* custom styles */
                 body {
@@ -991,7 +999,7 @@ async def index(request : web.Request):
                     flex-direction: column;
                     align-items: center; /* horizontal */ 
                     justify-content: flex-start; /* vertical */
-                    background-color: var(--very-background);
+                    background-color: var(--back-distance-1);
                     max-width: 100vw;
                     overflow-x: hidden;
                     overflow-y: scroll;
@@ -1029,7 +1037,7 @@ async def index(request : web.Request):
                     position: relative;
                     padding: 1rem;
                     border-radius: 1rem;
-                    background-color: var(--card-background);
+                    background-color: var(--back-distance-2);
                     box-shadow: 0 4px 5px 0 rgba(0,0,0,0.14), 0 1px 10px 0 rgba(0,0,0,0.12), 0 2px 4px -1px rgba(0,0,0,0.3);
                     display: flex;
                     flex-direction: column;
@@ -1051,6 +1059,15 @@ async def index(request : web.Request):
                     transform: scale(1);
                     z-index: 100;
                     box-shadow: 0 4px 5px 0 rgba(0,0,0,0.14), 0 1px 10px 0 rgba(0,0,0,0.12), 0 2px 4px -1px rgba(0,0,0,0.3);
+                    border-radius: 0.8rem;
+                    background: transparent;
+                    color: var(--light-red);
+                    position: fixed;
+                    bottom: 30px;
+                    left: 30px;
+                    border: 2px solid var(--light-red);
+                    padding: 1rem;
+                    cursor: pointer;
                 }
                 .stop-button:hover {
                     transform: scale(1.1);
@@ -1378,9 +1395,9 @@ async def index(request : web.Request):
                                         {
                                             label: "Quick Line",
                                             data: data.map(([x, y])=>({x,y})),
-                                            backgroundColor: "rgb(100, 92, 192, 0.9)",
-                                            borderColor: "rgb(100, 92, 192, 0.9)",
-                                            color: "rgb(100, 92, 192, 0.9)",
+                                            backgroundColor: "aquamarine",
+                                            borderColor: "aquamarine",
+                                            color: "aquamarine",
                                             cubicInterpolationMode: 'monotone',
                                             tension: 0.4,
                                         },
@@ -1389,6 +1406,7 @@ async def index(request : web.Request):
                                 options: {
                                     pointRadius: 3,
                                     pointHoverRadius: 8,
+                                    color: "whitesmoke",
                                     scales: {
                                         x: {
                                             type: "linear",
@@ -1505,7 +1523,6 @@ async def index(request : web.Request):
                     socket.on("new_card", async (message)=>{
                             let newData = null
                             try {
-                                console.log("new trigger")
                                 newData = JSON.parse(message)
                             } catch (error) {
                                 console.debug(`error is:`,error)
@@ -1520,7 +1537,7 @@ async def index(request : web.Request):
                     
                     // when python wants to trigger an event
                     socket.on("card_trigger", async (input)=>{
-                            console.log("card trigger")
+                            console.log("card trigger", input)
                             input = JSON.parse(input)
                             const card = silverSpectacle.cards[input.cardId]
                             if (card) {
@@ -1556,6 +1573,7 @@ async def index(request : web.Request):
                                 if (!value.element) {
                                     value.element = silverSpectacle.createComponent(value.interface, ...value.arguments)
                                 }
+                                value.element.id = key
                                 elements.push(value.element)
                             }
                             refreshStreamContainer(elements)
@@ -1615,17 +1633,8 @@ async def index(request : web.Request):
                                     await post({ to: window.location.origin+"/stop" })
                                 } catch (error) {}
                             })
-                            button.style.backgroundColor = "var(--light-red)"
-                            button.style.color = "white"
-                            button.style.position = "fixed"
-                            button.style.bottom = "30px"
-                            button.style.left = "30px"
-                            button.style.border = "none"
-                            button.style.padding = "1rem"
-                            button.style.cursor = "pointer"
                             button.classList.add("stop-button")
                             return button
-                        }
                 //
             })())
         </script>
