@@ -17,19 +17,22 @@ Then inside a python file (or python repl)
 ```python
 import silver_spectacle as ss
 ss.DisplayCard("quickScatter", [
-    [1,2],
-    [2,3],
-    [5,5],
-    [1.5, 2.3],
-    [2,3.2]
+    # [x,y]
+    [ 1   , 2   ],
+    [ 2   , 3   ],
+    [ 5   , 5   ],
+    [ 1.5 , 2.3 ],
+    [ 2   , 3.2 ]
 ])
 # >>> Server started at: http://0.0.0.0:9900
 ss.DisplayCard("quickLine", [
-    # dont forget to sort them by x value (otherwise it'll look like an etch-a-sketch)
+    # [x,y]
     [ 1,   2   ],
     [ 1.5, 2.3 ],
     [ 2,   3   ],
     [ 5,   5   ],
+    # for quickLine: dont forget to sort them by x value!
+    # (otherwise it'll look like an etch-a-sketch)
 ])
 ```
 
