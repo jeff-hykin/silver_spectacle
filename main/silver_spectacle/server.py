@@ -953,6 +953,29 @@ async def index(request : web.Request):
                 body {
                     font-family: sans-serif;
                 }
+                
+                :root {
+                    --css-baseline-scrollbar-background: lightgray;
+                    --css-baseline-scrollbar-foreground: dimgray;
+                }
+
+                * {
+                    scrollbar-color: var(--css-baseline-scrollbar-foreground) var(--css-baseline-scrollbar-background);
+                }
+
+                *::-webkit-scrollbar {
+                    width: 10px;
+                }
+
+                *::-webkit-scrollbar-track {
+                    background: var(--css-baseline-scrollbar-background);
+                }
+
+                *::-webkit-scrollbar-thumb {
+                    background-color: var(--css-baseline-scrollbar-foreground);
+                    border: 2px solid var(--css-baseline-scrollbar-background);
+                    border-radius: 20px;
+                }
             </style>
             <style>
                 :root {
@@ -970,7 +993,8 @@ async def index(request : web.Request):
                     justify-content: flex-start; /* vertical */
                     background-color: var(--very-background);
                     max-width: 100vw;
-                    overflow: scroll;
+                    overflow-x: hidden;
+                    overflow-y: scroll;
                 }
                 #stream-container {
                     display: flex;
@@ -979,7 +1003,7 @@ async def index(request : web.Request):
                     justify-content: flex-start; /* horizontal */;
                     align-items: flex-start; /* vertical */ 
                     width: 50rem;
-                    max-width: calc(100vw - 2rem);
+                    max-width: calc(100vw - 4.5rem);
                     transition: all 0.5s ease-in-out 0s;
                     padding: 6rem 3rem;
                 }
@@ -996,6 +1020,7 @@ async def index(request : web.Request):
                     cursor: pointer;
                     font-size: 1.1rem;
                     box-shadow: 0 4px 5px 0 rgba(0,0,0,0.14), 0 1px 10px 0 rgba(0,0,0,0.12), 0 2px 4px -1px rgba(0,0,0,0.3);
+                    outline: none;
                 }
                 .button:hover {
                     box-shadow: 0 24px 38px 3px rgba(0,0,0,0.14),0 9px 46px 8px rgba(0,0,0,0.12),0 11px 15px -7px rgba(0,0,0,0.2);
@@ -1011,6 +1036,7 @@ async def index(request : web.Request):
                     align-items: center; /* vertical */ 
                     justify-content: center; /* horizontal */
                     transition: all 0.2s ease-in-out 0s;
+                    box-sizing: border-box;
                     width: 100%;
                     min-height: 5rem;
                 }
@@ -1023,6 +1049,8 @@ async def index(request : web.Request):
                 .stop-button {
                     transition: all 0.2s ease-in-out 0s;
                     transform: scale(1);
+                    z-index: 100;
+                    box-shadow: 0 4px 5px 0 rgba(0,0,0,0.14), 0 1px 10px 0 rgba(0,0,0,0.12), 0 2px 4px -1px rgba(0,0,0,0.3);
                 }
                 .stop-button:hover {
                     transform: scale(1.1);
@@ -1035,9 +1063,17 @@ async def index(request : web.Request):
                     position: fixed;
                     bottom: 30px;
                     right: 30px;
-                    width: 10rem;
+                    width: 15rem;
                     padding: 1rem;
-                    overflow: scroll;
+                    overflow: auto;
+                }
+                body div .milkdown .editor {
+                    --milkdown-vertical-padding: 0;
+                    --milkdown-horizontal-padding: 3.25rem;
+                    padding-top: var(--milkdown-vertical-padding);
+                    padding-bottom: var(--milkdown-vertical-padding);
+                    padding-left: var(--milkdown-horizontal-padding);
+                    padding-right: var(--milkdown-horizontal-padding);
                 }
             </style>
             <style>
@@ -1167,13 +1203,16 @@ async def index(request : web.Request):
                         //
                         quickMarkdown: (args) => {
                             const createMarkdownCard = (text) => {
-                                const markdownItself = Milkdown({ readonly: true, contentString: text, style: { transform: "scale(1.1)" } })
+                                text = text.replace("\n\n", "\n&nbsp;\n").replace(/<br\/?>/, "&nbsp;").replace(/\\<br>/, "\\<br>").replace(/\\<br\/>/, "\\<br/>")
+                                const markdownItself = Milkdown({ readonly: true, contentString: text, style: { width: "100%", height: "fit-content" } })
                                 const card = silverSpectacle.createCard({
                                     children: [
                                         markdownItself
                                     ],
                                 })
                                 card.style.overflow = "hidden"
+                                card.style.padding = 0
+                                card.style.marginBottom = "1rem"
                                 return card
                             }
                             let card = createMarkdownCard(args[0])
@@ -1277,13 +1316,22 @@ async def index(request : web.Request):
                         // Quick Scatter
                         //
                         quickScatter: (args) => {
+                            let data = args[0]
+                            if (!(data instanceof Array)) {
+                                throw Exception(`quickLine needs an array [[x1,y1],[x2,y2] ...] but it got this instead:\n    ${JSON.stringify(data)}`)
+                            }
+                            // if single numbers instead of pairs
+                            if (! _.isNaN(_.toNumber(data[0])) ) {
+                                // make them pairs
+                                data = data.map((each,index)=>([index,each]))
+                            }
                             const config = {
                                 type: "scatter",
                                 data: {
                                 datasets: [
                                         {
                                             label: "Quick Scatter",
-                                            data: args[0].map(([x, y])=>({x,y})),
+                                            data: data.map(([x, y])=>({x,y})),
                                             backgroundColor: "#f07178",
                                         },
                                     ],
@@ -1313,13 +1361,23 @@ async def index(request : web.Request):
                         // Quick Line
                         //
                         quickLine: (args) => {
+                            let data = args[0]
+                            if (!(data instanceof Array)) {
+                                throw Exception(`quickLine needs an array [[x1,y1],[x2,y2] ...] but it got this instead:\n    ${JSON.stringify(data)}`)
+                            }
+                            // if single numbers instead of pairs
+                            if (! _.isNaN(_.toNumber(data[0])) ) {
+                                // make them pairs
+                                data = data.map((each,index)=>([index,each]))
+                            }
+                            
                             const config = {
                                 type: "line",
                                 data: {
                                     datasets: [
                                         {
                                             label: "Quick Line",
-                                            data: args[0].map(([x, y])=>({x,y})),
+                                            data: data.map(([x, y])=>({x,y})),
                                             backgroundColor: "rgb(100, 92, 192, 0.9)",
                                             borderColor: "rgb(100, 92, 192, 0.9)",
                                             color: "rgb(100, 92, 192, 0.9)",
@@ -1520,11 +1578,11 @@ async def index(request : web.Request):
                                 try {
                                     return creationInterface(args)
                                 } catch (error) {
-                                    const element = document.createElement("div")
-                                    element.classList.add("card")
+                                    const element = silverSpectacle.createCard({})
                                     element.style.backgroundColor = "coral"
-                                    element.style.color = "red"
+                                    element.style.color = "white"
                                     element.innerHTML = `There was an issue with the card:<span>${error}</span>`
+                                    return element
                                 }
                             } else {
                                 silverSpectacle.log(`[ERROR] python tried to create a {JSON.stringify(theInterface)} interface\nHowever that isn't one of the available interfaces\nThe current list is ${JSON.stringify(Object.keys(silverSpectacle.interface))}\nThe arguments for that card were: ${JSON.stringify(args)}`)
@@ -1533,7 +1591,7 @@ async def index(request : web.Request):
 
                     silverSpectacle.createCard = function({ children, style, ...data }) {
                             style = {...style}
-                            children = [...children]
+                            children = children||[]
                             let div = document.createElement("div")
                             div.classList.add("card")
                             if (typeof data.class == 'string') {
