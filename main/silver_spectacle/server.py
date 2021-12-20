@@ -1003,7 +1003,7 @@ async def index(request : web.Request):
                     justify-content: flex-start; /* horizontal */;
                     align-items: flex-start; /* vertical */ 
                     width: 50rem;
-                    max-width: calc(100vw - 2rem);
+                    max-width: calc(100vw - 4.5rem);
                     transition: all 0.5s ease-in-out 0s;
                     padding: 6rem 3rem;
                 }
@@ -1049,6 +1049,8 @@ async def index(request : web.Request):
                 .stop-button {
                     transition: all 0.2s ease-in-out 0s;
                     transform: scale(1);
+                    z-index: 100;
+                    box-shadow: 0 4px 5px 0 rgba(0,0,0,0.14), 0 1px 10px 0 rgba(0,0,0,0.12), 0 2px 4px -1px rgba(0,0,0,0.3);
                 }
                 .stop-button:hover {
                     transform: scale(1.1);
