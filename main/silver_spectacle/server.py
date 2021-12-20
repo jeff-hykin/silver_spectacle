@@ -802,7 +802,7 @@ async def index(request : web.Request):
                     justify-content: flex-start;
                     align-items: flex-start;
                     width: 60rem;
-                    max-width: calc(100vw - 4.5rem);
+                    max-width: calc(100vw - 2rem);
                     transition: all 0.5s ease-in-out 0s;
                     padding: 6rem 3rem;
                     overflow-y: auto;
