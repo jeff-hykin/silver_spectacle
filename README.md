@@ -16,13 +16,6 @@ Install just like any other pip module
 Then inside a python file (or python repl) 
 ```python
 import silver_spectacle as ss
-
-ss.DisplayCard("quickScatter", [
-    [1,2],
-    [2,3.2]
-])
-# >>> Server started at: http://0.0.0.0:9900
-
 ss.DisplayCard("quickScatter", [
     [1,2],
     [2,3],
@@ -30,6 +23,7 @@ ss.DisplayCard("quickScatter", [
     [1.5, 2.3],
     [2,3.2]
 ])
+# >>> Server started at: http://0.0.0.0:9900
 ```
 
 Open the address in your browser and you should see these <br>
@@ -62,7 +56,7 @@ card.send([1.5, 2.3])
 card.send([2,3.2])
 ```
 
-NOTE: Currently live updates need to be sent after the browser window is loaded. Otherwise the web page will miss the notification. This behavior will be fixed in the future, but requires a bit of effort to be done in a performant way.
+NOTE: Currently live updates are not stored. So if the browser window isn't open, then that data will be sent nowhere. This behavior will be improved in the future, but requires a bit of effort to be done in a performant way.
 
 <br>
 
