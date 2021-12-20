@@ -26,8 +26,10 @@ ss.DisplayCard("quickScatter", [
 # >>> Server started at: http://0.0.0.0:9900
 ```
 
-Open the address in your browser and you should see these <br>
-![quick_scatter_2](https://user-images.githubusercontent.com/17692058/127252592-830874fa-78f4-45ac-84d3-37dbc6cff1bc.png)
+Open the address in a browser and you should see something like:
+<br>
+<img width="1412" alt="charts" src="https://user-images.githubusercontent.com/17692058/146709458-cccaca78-b937-4cf5-90b1-b39a23c94053.png">
+
 
 
 You can display images
