@@ -36,7 +36,6 @@ def array_to_png(array):
         ))
     # writes to btyes object instead of a file
     png.from_array(rows, mode).write(stream)
-    png.from_array(rows, mode).save("stream_test.png")
     stream.flush()
     return stream.getvalue()
 
