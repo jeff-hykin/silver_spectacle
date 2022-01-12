@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "silver_spectacle"
-version = "0.2.2"
+version = "0.0.1"
 description = ""
 authors = ["Jeff Hykin <jeff.hykin@gmail.com>"]
 license = "MIT"
