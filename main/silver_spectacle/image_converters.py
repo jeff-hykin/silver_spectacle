@@ -94,6 +94,28 @@ def image_string_init(file_path, *args):
 DisplayCard.conversion_table["init"]["quickImage"][str] = image_string_init
 DisplayCard.conversion_table["send"]["quickImage"][str] = lambda arg: (image_string_init(arg)[0][0], dict())
 
+# 
+# add converter for pytorch
+# 
+try:
+    import torch
+    def torch_image_to_opencv_image(tensor):
+        dimension_count = len(tensor.shape)
+        new_shape = [ each for each in range(dimension_count) ]
+        
+        channels = new_shape[-3]
+        height = new_shape[-2]
+        width = new_shape[-1]
+        new_shape[-3] = height
+        new_shape[-2] = width
+        new_shape[-1] = channels
+        return tensor.permute(*new_shape).numpy()
+    DisplayCard.conversion_table["init"]["quickImage"][torch.Tensor] = lambda tensor, *args: unknown_iterable_init(torch_image_to_opencv_image(tensor), *args)
+    DisplayCard.conversion_table["send"]["quickImage"][torch.Tensor] = lambda arg: (unknown_iterable_init(torch_image_to_opencv_image(tensor))[0][0], dict())
+except Exception as error:
+    pass
+
+
 # # 
 # # add converter for pillow
 # # 
