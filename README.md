@@ -83,6 +83,7 @@ ss.DisplayCard("quickLine", list_of_x_y_pairs)
 ss.DisplayCard("quickImage", numpy_image_or_filepath)
 ss.DisplayCard("quickMarkdown", markdown_text)
 ss.DisplayCard("chartjs", config) # does tons: see https://www.chartjs.org/docs/latest/general/data-structures.html
+ss.DisplayCard("multiLine", dict_to_x_y_pairs)
 ```
 
 ## What kind of plots are possible?
