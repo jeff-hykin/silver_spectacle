@@ -1032,7 +1032,7 @@ async def index(request : web.Request):
                         "#f78c6c",
                         "#c3e88d",
                     ]
-                    silverSpectacle.colors = (index)=> list[(index % colors.length + colors.length) % colors.length]
+                    silverSpectacle.colors = (index)=> colors[(index % colors.length + colors.length) % colors.length]
                     silverSpectacle.interface = {
                         //
                         // Quick Markdown
