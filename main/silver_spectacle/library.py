@@ -290,6 +290,7 @@ class DisplayCard:
                 break
         
         self._trigger("send", data, bypass_purification=kwargs.get("bypass_purification", False))
+        return self
 
 def register_large(data_format, data_id, data_as_bytes):
     ensure_server_is_running()
