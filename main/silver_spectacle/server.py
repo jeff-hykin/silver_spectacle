@@ -1186,10 +1186,23 @@ async def index(request : web.Request):
                             }
                             let card = silverSpectacle.createComponent("chartjs", config)
                             // sender callback
-                            card.receive = ([x,y]) => {
-                                console.debug(card)
-                                card.chartJsChart.data.datasets[0].data.push({x,y})
-                                card.chartJsChart.update()
+                            card.receive = (arg) => {
+                                if (arg == "clear") {
+                                    card.chartJsChart.data.datasets[0] = []
+                                    card.chartJsChart.update()
+                                } else {
+                                    if (arg instanceof Array && arg.length) {
+                                        if (!(arg[0] instanceof Array)) {
+                                            const [x,y] = arg
+                                            card.chartJsChart.data.datasets[0].data.push({x,y})
+                                        } else {
+                                            for (const [x,y] of arg) {
+                                                card.chartJsChart.data.datasets[0].data.push({x,y})
+                                            }
+                                            card.chartJsChart.update()
+                                        }
+                                    }
+                                }
                             }
                             return card
                         },
@@ -1241,10 +1254,23 @@ async def index(request : web.Request):
                             }
                             let card = silverSpectacle.createComponent("chartjs", config)
                             // sender callback
-                            card.receive = ([x,y]) => {
-                                console.debug(card)
-                                card.chartJsChart.data.datasets[0].data.push({x,y})
-                                card.chartJsChart.update()
+                            card.receive = (arg) => {
+                                if (arg == "clear") {
+                                    card.chartJsChart.data.datasets[0] = []
+                                    card.chartJsChart.update()
+                                } else {
+                                    if (arg instanceof Array && arg.length) {
+                                        if (!(arg[0] instanceof Array)) {
+                                            const [x,y] = arg
+                                            card.chartJsChart.data.datasets[0].data.push({x,y})
+                                        } else {
+                                            for (const [x,y] of arg) {
+                                                card.chartJsChart.data.datasets[0].data.push({x,y})
+                                            }
+                                            card.chartJsChart.update()
+                                        }
+                                    }
+                                }
                             }
                             return card
                         },
