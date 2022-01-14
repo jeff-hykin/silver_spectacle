@@ -1187,8 +1187,9 @@ async def index(request : web.Request):
                             let card = silverSpectacle.createComponent("chartjs", config)
                             // sender callback
                             card.receive = (arg) => {
+                                console.log(arg)
                                 if (arg == "clear") {
-                                    card.chartJsChart.data.datasets[0] = []
+                                    card.chartJsChart.data.datasets[0].data = []
                                     card.chartJsChart.update()
                                 } else {
                                     if (arg instanceof Array && arg.length) {
@@ -1256,7 +1257,7 @@ async def index(request : web.Request):
                             // sender callback
                             card.receive = (arg) => {
                                 if (arg == "clear") {
-                                    card.chartJsChart.data.datasets[0] = []
+                                    card.chartJsChart.data.datasets[0].data = []
                                     card.chartJsChart.update()
                                 } else {
                                     if (arg instanceof Array && arg.length) {
