@@ -1,0 +1,11 @@
+- upgrade to newest fornix layout
+- use encapsulated javascript components
+- have content-addressed files for importing front-end libraries
+- use a class definition to add extensions
+    - define the name
+    - define library files (content addressed)
+    - define the send methods in python
+    - define the receive methods in javascript
+- have a class for defining a theme
+    - default Spectacle colors (js and css)
+- allow setting the port number
