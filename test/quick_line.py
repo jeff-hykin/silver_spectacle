@@ -6,6 +6,7 @@ card = ss.DisplayCard("quickLine", [
     [ 2,   3   ],
     [ 5,   5   ],
 ])
+
 card.send("clear")
 card.send([
     [ 1,   2   ],

@@ -809,7 +809,7 @@ async def index(request : web.Request):
                     max-height: 100vh;
                     box-sizing: border-box;
                 }
-                 /* Hide scrollbar for Chrome, Safari and Opera */
+                /* Hide scrollbar for Chrome, Safari and Opera */
                 #stream-container::-webkit-scrollbar {
                     display: none;
                 }
@@ -855,7 +855,30 @@ async def index(request : web.Request):
                 .card:hover {
                     box-shadow: 0 24px 38px 3px rgba(0,0,0,0.14),0 9px 46px 8px rgba(0,0,0,0.12),0 11px 15px -7px rgba(0,0,0,0.2);
                 }
-                .card:hover {
+                .x-out-button {
+                    position: absolute;
+                    right: 0;
+                    top: 0;
+                    transform: translate(50%, -50%);
+                    display: flex;
+                    align-items: center;
+                    justify-items: center;
+                    justify-content: center;
+                    align-content: center;
+                    border-radius: 0.3rem;
+                    background-color: var(--light-red);
+                    color: white;
+                    aspect-ratio: 1;
+                    width: 2rem;
+                    opacity: 0;
+                    transition: all 0.2s ease-in-out 0s;
+                    box-shadow: 0 4px 5px 0 rgba(0,0,0,0.14), 0 1px 10px 0 rgba(0,0,0,0.12), 0 2px 4px -1px rgba(0,0,0,0.3);
+                }
+                *:hover > .x-out-button {
+                    opacity: 0.8;
+                }
+                body .x-out-button:hover {
+                    opacity: 1;
                     box-shadow: 0 24px 38px 3px rgba(0,0,0,0.14),0 9px 46px 8px rgba(0,0,0,0.12),0 11px 15px -7px rgba(0,0,0,0.2);
                 }
                 .stop-button {
@@ -1479,15 +1502,35 @@ async def index(request : web.Request):
                 // core functions
                 //
                 // 
+                    silverSpectacle._deletedCards = new Set()
                     function refreshUi(){
                             let elements = []
                             // create elements if needed
                             for (const [key, value] of Object.entries(silverSpectacle.cards)) {
+                                // skip deleted key
+                                if (silverSpectacle._deletedCards.has(key)) {
+                                    continue
+                                }
                                 // if no element then create it
                                 if (!value.element) {
                                     value.element = silverSpectacle.createComponent(value.interface, ...value.arguments)
                                 }
                                 value.element.id = key
+                                
+                                // add a removal button
+                                const xOutButton = document.createElement("button")
+                                xOutButton.classList.add("x-out-button")
+                                xOutButton.addEventListener("click", ()=>{
+                                    // add to deleted list
+                                    silverSpectacle._deletedCards.add(key)
+                                    // stop showing the current element right away
+                                    if (xOutButton.parentElement) {
+                                        xOutButton.parentElement.style.display = "none"
+                                    }
+                                })
+                                xOutButton.innerText = "x"
+                                value.element.appendChild(xOutButton)
+                                
                                 elements.push(value.element)
                             }
                             refreshStreamContainer(elements)
@@ -1536,6 +1579,8 @@ async def index(request : web.Request):
                                 div.appendChild(each)
                             }
                             Object.assign(div.style, style)
+                            
+                            const xOutButton = document.createElement("button")
                             return div
                         }
                 
