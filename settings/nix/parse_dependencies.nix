@@ -27,7 +27,7 @@
     nixSettings = (main.fromTOML
         (main.readFile 
             (main.getEnv
-                "__PROJECTR_NIX_SETTINGS_PATH"
+                "__FORNIX_NIX_SETTINGS_PATH"
             )
         )
     );
@@ -37,7 +37,7 @@
     packageToml = (main.fromTOML
         (main.readFile
             (main.getEnv 
-                ("__PROJECTR_NIX_PACKAGES_FILE_PATH")
+                ("__FORNIX_NIX_PACKAGES_FILE_PATH")
             )
         )
     );
@@ -236,19 +236,19 @@
                     source "$PWD/settings/project.config.sh"
                     
                     # ensure that the folder exists
-                    mkdir -p "$(dirname "$__PROJECTR_NIX_PATH_EXPORT_FILE")"
-                    echo ${main.escapeShellArg (packagePathsAsJson)} > "$__PROJECTR_NIX_PATH_EXPORT_FILE"
+                    mkdir -p "$(dirname "$__FORNIX_NIX_PATH_EXPORT_FILE")"
+                    echo ${main.escapeShellArg (packagePathsAsJson)} > "$__FORNIX_NIX_PATH_EXPORT_FILE"
                     
-                    if [ -n "$PROJECTR_HOME" ]
+                    if [ -n "$FORNIX_HOME" ]
                     then
                         # we don't want to give nix or other apps our home folder
-                        if [[ "$HOME" != "$PROJECTR_HOME" ]] 
+                        if [[ "$HOME" != "$FORNIX_HOME" ]] 
                         then
-                            mkdir -p "$PROJECTR_HOME/.cache/"
-                            ln -s "$HOME/.cache/nix" "$PROJECTR_HOME/.cache/" &>/dev/null
+                            mkdir -p "$FORNIX_HOME/.cache/"
+                            ln -s "$HOME/.cache/nix" "$FORNIX_HOME/.cache/" &>/dev/null
                             
                             # so make the home folder the same as the project folder
-                            export HOME="$PROJECTR_HOME"
+                            export HOME="$FORNIX_HOME"
                             # make it explicit which nixpkgs we're using
                             export NIX_PATH="nixpkgs=${mainRepo}:."
                         fi
