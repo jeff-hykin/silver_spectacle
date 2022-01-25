@@ -72,7 +72,7 @@ NOTE: Currently live updates are not stored. So if the browser window isn't open
 
 <br>
 
-NOTE: Currently each `.send()` depends on the type of card (the interface). For example the arguments for `quickScatter` can be different from `chartjs`.
+NOTE: Currently each `.send()` depends on the type of card (the cardMaker). For example the arguments for `quickScatter` can be different from `chartjs`.
 
 
 ## What are the available cards?
@@ -195,7 +195,7 @@ There is some additional documentation below for fully fledged customization of 
 There are many planned features. This library is under active development. However, the API is stable, and effectively all changes will only be adding tools to the toolbox. Some of the planned features are small:
   - adding a button for clearing the screen of existing graphs
   - an option to save/load all visual data to a file
-  - better interfaces for graphs that incrementally update
+  - better cardMakers for graphs that incrementally update
   - working with numpy/pytorch/tensorflow tensors without needing to convert
 
 Other features will be a major additions 
@@ -204,7 +204,7 @@ Other features will be a major additions
   - a simple system for combining/shaping graphs
   - a theming system
   - better visual notifications for errors
-  - a simple interface for graphical plugins (buttons/sliders)
+  - a simple cardMaker for graphical plugins (buttons/sliders)
  
 Development will, more than likely, be sporadic, PR's are welcome.
 
@@ -285,17 +285,17 @@ ss.configure(
             silverSpectacle.cards              // dict with cardId's as keys
             silverSpectacle.cards[0].element   // html element of card with ID of 0
             silverSpectacle.cards[0].createdAt // unix time in seconds
-            silverSpectacle.cards[0].interface // name of interface as string
+            silverSpectacle.cards[0].cardMaker // name of cardMaker as string
             silverSpectacle.cards[0].arguments // array of json values
-            silverSpectacle.interface          // dict of fuctions that create card elements
+            silverSpectacle.cardMaker          // dict of fuctions that create card elements
             silverSpectacle.libraries          // dict of libraries, like ChartJS that you can use
             silverSpectacle.libraries.lodash   // if you like lodash, its available
             
             //
-            // add your own card/interface
+            // add your own card/cardMaker
             //
-                // step 1, create a function like the one below (an interface)
-                silverSpectacle.interface["myCustomUi"] = async (args) => {
+                // step 1, create a function like the one below (an cardMaker)
+                silverSpectacle.cardMaker["myCustomUi"] = async (args) => {
                     let message = args[0]
                     let myComponent = document.createElement("div")
                     myComponent.innerHTML = "Python says:<br>"+message
@@ -335,4 +335,4 @@ ss.configure(
 )
 ```
 
-Right now, there is still a lot of room for improving/expanding the javascript interface with events, tools, and encapsulation.
+Right now, there is still a lot of room for improving/expanding the javascript cardMaker with events, tools, and encapsulation.

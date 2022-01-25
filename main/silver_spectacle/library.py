@@ -258,7 +258,7 @@ class DisplayCard:
                 arguments, kwargs = converter(*arguments)
                 break
         
-        self._interface = interface
+        self._card_maker = interface
         self._created_at = time.time()
         self.id = str(int(self._created_at * 1000000000))
         
@@ -281,7 +281,7 @@ class DisplayCard:
     # send
     def send(self, data):
         kwargs = {}
-        conversion_table = DisplayCard.conversion_table["send"][self._interface]
+        conversion_table = DisplayCard.conversion_table["send"][self._card_maker]
         for pattern, converter in reversed(conversion_table.items()):
             the_type_pattern_does_match = isinstance(pattern, type) and isinstance(data, pattern)
             the_callable_pattern_check_does_match = not isinstance(pattern, type) and callable(pattern) and pattern(arguments)
