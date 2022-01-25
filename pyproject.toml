@@ -1,8 +1,13 @@
 [tool.poetry]
 name = "silver_spectacle"
-version = "0.0.1"
-description = ""
+version = "0.6.7"
+description = "An easier way to display data"
 authors = ["Jeff Hykin <jeff.hykin@gmail.com>"]
+
+[tool.extra]
+author='Jeff Hykin'
+author_email='jeff.hykin@gmail.com'
+url='https://github.com/jeff-hykin/silver_spectacle.git'
 license = "MIT"
 
 [tool.poetry.dependencies]
@@ -15,6 +20,7 @@ requests = "^2.26.0"
 [tool.poetry.dev-dependencies]
 twine = "3.4.1"
 "keyrings.alt" = "4.0.2"
+toml = "^0.10.2"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
