@@ -284,7 +284,7 @@ class DisplayCard:
         conversion_table = DisplayCard.conversion_table["send"][self._interface]
         for pattern, converter in reversed(conversion_table.items()):
             the_type_pattern_does_match = isinstance(pattern, type) and isinstance(data, pattern)
-            the_callable_pattern_check_does_match = not isinstance(pattern, type) and callable(pattern) and pattern(arguments)
+            the_callable_pattern_check_does_match = not isinstance(pattern, type) and callable(pattern) and pattern([data])
             if the_type_pattern_does_match or the_callable_pattern_check_does_match:
                 data, kwargs = converter(data)
                 break
