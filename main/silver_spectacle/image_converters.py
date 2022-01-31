@@ -31,9 +31,15 @@ def array_to_png(array):
     size_of_each_row = width * channels
     rows = [tuple([0]*size_of_each_row)]*height
     for row_index in range(0,height):
-        rows[row_index] = tuple(flatten(
-            reversed(array[row_index][column_index]) for column_index in range(0,width)
-        ))
+        # if not grayscale
+        if mode != 'L':
+            rows[row_index] = tuple(flatten(
+                reversed(array[row_index][column_index]) for column_index in range(0,width)
+            ))
+        else:
+            rows[row_index] = tuple(flatten(
+                int(array[row_index][column_index]) for column_index in range(0,width)
+            ))
     # writes to btyes object instead of a file
     png.from_array(rows, mode).write(stream)
     stream.flush()
