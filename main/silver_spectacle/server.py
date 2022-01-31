@@ -1424,13 +1424,24 @@ async def index(request : web.Request):
                                 saveImageButton.setAttribute("href", canvas.toDataURL("image/png").replace("image/png", "image/octet-stream"))
                             }
                             // putImageIntoCanvas(args[0]) // dimensions: width, height, rgb
+                            const imageElement = document.createElement("img")
+                            imageElement.style.position = "absolute"
+                            imageElement.style.top = "0px"
+                            imageElement.style.left = "0px"
+                            imageElement.style.width = "100%"
+                            imageElement.style.boxSizing = "content-box"
+                            imageElement.style.imageRendering = "crisp-edges"
+                            card.appendChild(imageElement)
+                            
+                            // expand the card after the fact (better for performance when img changing rapidly)
+                            setInterval(()=>{
+                                if (imageElement.clientHeight) {
+                                    card.style.minHeight = `${imageElement.clientHeight}px`
+                                }
+                            }, 200)
+                            
                             const putImageIntoCard = (imageExtension)=> {
-                                const imageElement = document.createElement("img")
                                 imageElement.src = "/large/get/"+imageExtension
-                                imageElement.style.width = "100%"
-                                imageElement.style.imageRendering = "crisp-edges"
-                                card.innerHTML = ""
-                                card.appendChild(imageElement)
                             }
                             
                             //
@@ -1474,7 +1485,6 @@ async def index(request : web.Request):
                     
                     // when python wants to trigger an event
                     socket.on("card_trigger", async (input)=>{
-                            console.log("card trigger", input)
                             input = JSON.parse(input)
                             const card = silverSpectacle.cards[input.cardId]
                             if (card) {
