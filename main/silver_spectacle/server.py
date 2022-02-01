@@ -36,6 +36,7 @@ if debugging: print('starting server')
 
 @routes.get('/')
 async def index(request : web.Request): 
+    if debugging: print(f'''web request''')
     global cards
     global last_time_data_was_viewed
     output = r'''
@@ -1210,17 +1211,22 @@ async def index(request : web.Request):
                             let card = silverSpectacle.createComponent("chartjs", config)
                             // sender callback
                             card.receive = (arg) => {
-                                console.log(arg)
+                                const dataset = card.chartJsChart.data.datasets[0]
                                 if (arg == "clear") {
                                     card.chartJsChart.data.datasets[0].data = []
                                 } else {
                                     if (arg instanceof Array && arg.length) {
-                                        if (!(arg[0] instanceof Array)) {
+                                        if (arg[0] == "replace_all" && arg.length > 1) {
+                                            arg.shift()
+                                            if (arg[0] instanceof Array) {
+                                                dataset.data = arg.map(([x,y])=>({x,y}))
+                                            }
+                                        } else if (!(arg[0] instanceof Array)) {
                                             const [x,y] = arg
-                                            card.chartJsChart.data.datasets[0].data.push({x,y})
+                                            dataset.data.push({x,y})
                                         } else {
                                             for (const [x,y] of arg) {
-                                                card.chartJsChart.data.datasets[0].data.push({x,y})
+                                                dataset.data.push({x,y})
                                             }
                                         }
                                     }
@@ -1278,16 +1284,22 @@ async def index(request : web.Request):
                             let card = silverSpectacle.createComponent("chartjs", config)
                             // sender callback
                             card.receive = (arg) => {
+                                const dataset = card.chartJsChart.data.datasets[0]
                                 if (arg == "clear") {
                                     card.chartJsChart.data.datasets[0].data = []
                                 } else {
                                     if (arg instanceof Array && arg.length) {
-                                        if (!(arg[0] instanceof Array)) {
+                                        if (arg[0] == "replace_all" && arg.length > 1) {
+                                            arg.shift()
+                                            if (arg[0] instanceof Array) {
+                                                dataset.data = arg.map(([x,y])=>({x,y}))
+                                            }
+                                        } else if (!(arg[0] instanceof Array)) {
                                             const [x,y] = arg
-                                            card.chartJsChart.data.datasets[0].data.push({x,y})
+                                            dataset.data.push({x,y})
                                         } else {
                                             for (const [x,y] of arg) {
-                                                card.chartJsChart.data.datasets[0].data.push({x,y})
+                                                dataset.data.push({x,y})
                                             }
                                         }
                                     }

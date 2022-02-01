@@ -212,7 +212,7 @@ def ensure_server_is_running():
                 "--custom-css", _settings["custom_css"],
                 "--custom-js", _settings["custom_js"],
             ],
-            **({} if debugging else dict(stdout=subprocess.PIPE)),
+            **(dict(stdout=sys.stdout) if debugging else dict(stdout=subprocess.PIPE)),
             # stderr=subprocess.STDOUT,
         )
         start = time.time()
