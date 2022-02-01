@@ -1213,7 +1213,6 @@ async def index(request : web.Request):
                                 console.log(arg)
                                 if (arg == "clear") {
                                     card.chartJsChart.data.datasets[0].data = []
-                                    card.chartJsChart.update()
                                 } else {
                                     if (arg instanceof Array && arg.length) {
                                         if (!(arg[0] instanceof Array)) {
@@ -1223,10 +1222,10 @@ async def index(request : web.Request):
                                             for (const [x,y] of arg) {
                                                 card.chartJsChart.data.datasets[0].data.push({x,y})
                                             }
-                                            card.chartJsChart.update()
                                         }
                                     }
                                 }
+                                card.chartJsChart.update()
                             }
                             return card
                         },
@@ -1281,7 +1280,6 @@ async def index(request : web.Request):
                             card.receive = (arg) => {
                                 if (arg == "clear") {
                                     card.chartJsChart.data.datasets[0].data = []
-                                    card.chartJsChart.update()
                                 } else {
                                     if (arg instanceof Array && arg.length) {
                                         if (!(arg[0] instanceof Array)) {
@@ -1291,10 +1289,10 @@ async def index(request : web.Request):
                                             for (const [x,y] of arg) {
                                                 card.chartJsChart.data.datasets[0].data.push({x,y})
                                             }
-                                            card.chartJsChart.update()
                                         }
                                     }
                                 }
+                                card.chartJsChart.update()
                             }
                             return card
                         },

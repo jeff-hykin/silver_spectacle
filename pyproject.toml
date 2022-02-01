@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "silver_spectacle"
-version = "0.7.0"
+version = "0.7.1"
 description = "An easier way to display data"
 authors = ["Jeff Hykin <jeff.hykin@gmail.com>"]
 
