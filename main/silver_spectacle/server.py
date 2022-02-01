@@ -1119,6 +1119,15 @@ async def index(request : web.Request):
                             let chart
                             setTimeout(() => {
                                 card.chartJsChart = chart = new Chart(canvas, config)
+                                if (!(silverSpectacle._chartjsCharts instanceof Array)) {
+                                    silverSpectacle._chartjsCharts = []
+                                    setInterval(()=>{
+                                        for (const each of silverSpectacle._chartjsCharts) {
+                                            each.update()
+                                        }
+                                    }, 1000)
+                                }
+                                silverSpectacle._chartjsCharts.push(card.chartJsChart)
                             }, 0)
                             //
                             // updater callback
@@ -1231,7 +1240,7 @@ async def index(request : web.Request):
                                         }
                                     }
                                 }
-                                card.chartJsChart.update()
+                                
                             }
                             return card
                         },
@@ -1304,7 +1313,7 @@ async def index(request : web.Request):
                                         }
                                     }
                                 }
-                                card.chartJsChart.update()
+                                
                             }
                             return card
                         },
@@ -1371,7 +1380,7 @@ async def index(request : web.Request):
                                         }
                                     }
                                 }
-                                card.chartJsChart.update()
+                                
                             }
                             return card
                         },
