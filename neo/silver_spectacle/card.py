@@ -29,8 +29,8 @@ class TrackedList(TrackedData):
             each = Track(each)
             if isinstance(each, TrackedData):
                 self.value.append(each)
-                # change(value=, key_list=, action=, args=, time=)
-                each.listeners.append(lambda **kwargs: self._change_from(**{**kwargs, "key_list": [index]+kwargs.get("key_list",[])}) )
+                # change(value=, path=, action=, args=, time=)
+                each.listeners.append(lambda **kwargs: self._change_from(**{**kwargs, "path": [index]+kwargs.get("path",[])}) )
     
     def _got_deleted(self):
         self.is_deleted = True
@@ -44,7 +44,7 @@ class TrackedList(TrackedData):
         
         for each in self.listeners:
             each({
-                **dict(key_list=[]),
+                **dict(path=[]),
                 **kwargs,
                 **dict(value=self.value),
             })
@@ -63,13 +63,13 @@ class TrackedList(TrackedData):
         self.value = front+[ Track(each) for each in new_values ]+back
         if not self.is_deleted:
             for each in self.listeners:
-                each(value=self, key_list=[], action="splice", args=json.loads(json.dumps([start, end, new_values])), time=unix_epoch())
+                each(value=self, path=[], action="splice", args=json.loads(json.dumps([start, end, new_values])), time=unix_epoch())
         
         for each in middle:
             if isinstance(each, TrackedData):
                 each.is_deleted = True
-                # change(value=, key_list=, action=, args=)
-                each.listeners.append(lambda **kwargs: self._change_from(**{**kwargs, "key_list": [index]+kwargs.get("key_list",[])}) )
+                # change(value=, path=, action=, args=)
+                each.listeners.append(lambda **kwargs: self._change_from(**{**kwargs, "path": [index]+kwargs.get("path",[])}) )
         
         return json.loads(json.dumps(middle))
     
@@ -149,8 +149,8 @@ class TrackedDict(TrackedData):
             each_value = Track(each_value)
             if isinstance(each_value, TrackedData):
                 self.each_value.append(each_value)
-                # change(value=, key_list=, action=, args=)
-                each_value.listeners.append(lambda **kwargs: self._change_from(**{**kwargs, "key_list": [key]+kwargs.get("key_list",[])}) )
+                # change(value=, path=, action=, args=)
+                each_value.listeners.append(lambda **kwargs: self._change_from(**{**kwargs, "path": [key]+kwargs.get("path",[])}) )
     
     def _change_from(self, **kwargs):
         if self.is_deleted:
@@ -158,7 +158,7 @@ class TrackedDict(TrackedData):
         
         for each in self.listeners:
             each({
-                **dict(key_list=[]),
+                **dict(path=[]),
                 **kwargs,
                 **dict(value=self.value),
             })
@@ -177,7 +177,7 @@ class TrackedDict(TrackedData):
             del self.value[key]
         if not self.is_deleted:
             for each in self.listeners:
-                each(value=self, key_list=[], action="delete", args=list(keys), time=unix_epoch())
+                each(value=self, path=[], action="delete", args=list(keys), time=unix_epoch())
     
     # minimum-spanning-method 2 of 2
     def merge(self, other_dict, **kwargs):
@@ -190,10 +190,10 @@ class TrackedDict(TrackedData):
         if not self.is_deleted:
             for each_key, each_value in other_dict.items():
                 if isinstance(self.value[each_key], TrackedData):
-                    each_value.listeners.append(lambda **kwargs: self._change_from(**{**kwargs, "key_list": [each_key]+kwargs.get("key_list",[])}) )
+                    each_value.listeners.append(lambda **kwargs: self._change_from(**{**kwargs, "path": [each_key]+kwargs.get("path",[])}) )
         
             for each in self.listeners:
-                each(value=self, key_list=[], action="merge", args=json.loads(json.dumps([other_dict])), time=unix_epoch())
+                each(value=self, path=[], action="merge", args=json.loads(json.dumps([other_dict])), time=unix_epoch())
         
         return self
     
@@ -265,14 +265,19 @@ class Card:
         self.timeline = []
         self.data = Track(kwargs)
     
-    def _as_html_(self):
+    def _as_js_(self):
         # should change as self.data changes
-        return f"""
-            
-        """
+        return """function ({id, data}) {
+            const runtimeData = {}
+            const element = document.createElement("div")
+            element.onDataChange = function({ value, path, action, args, time }) {
+                // change the element somehow when the data changes
+            }
+            return element
+        }"""
     
     def save(path):
-        # convers self to HTML then saves that as a file
+        # converts self to HTML then saves that as a file
         # TODO: force existance of path
         with open(path, 'w') as the_file:
             the_file.write(str(self._as_html_()))
