@@ -16,6 +16,8 @@ def Track(value):
 class TrackedData:
     self.is_deleted = False
     self.listeners = []
+    def _got_deleted(self):
+        self.is_deleted = True
     def add_change_listener(self, a_function):
         self.listeners.append(a_function)
     
@@ -29,6 +31,12 @@ class TrackedList(TrackedData):
                 self.value.append(each)
                 # change(value=, key_list=, action=, args=, time=)
                 each.listeners.append(lambda **kwargs: self._change_from(**{**kwargs, "key_list": [index]+kwargs.get("key_list",[])}) )
+    
+    def _got_deleted(self):
+        self.is_deleted = True
+        for each in self.value:
+            if isinstance(each, TrackedData):
+                each._got_deleted()
     
     def _change_from(self, **kwargs):
         if self.is_deleted:
@@ -154,6 +162,12 @@ class TrackedDict(TrackedData):
                 **kwargs,
                 **dict(value=self.value),
             })
+    
+    def _got_deleted(self):
+        self.is_deleted = True
+        for each in self.value.values():
+            if isinstance(each, TrackedData):
+                each._got_deleted()
     
     # minimum-spanning-method 1 of 2
     def delete(self, *keys):
