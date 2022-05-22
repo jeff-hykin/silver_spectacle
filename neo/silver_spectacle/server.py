@@ -5,6 +5,7 @@ import sys
 import argparse 
 import math
 import asyncio
+from random import random, sample, choices
 from time import time as now
 import sys
 from os.path import isabs, isfile, isdir, join, dirname, basename, exists, splitext, relpath
