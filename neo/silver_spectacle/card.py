@@ -24,8 +24,8 @@ class TrackedList(TrackedData):
             each = Track(each)
             if isinstance(each, TrackedData):
                 self.value.append(each)
-                # change(value=, keylist=, action=, args=)
-                each.listeners.append(lambda **kwargs: self._change_from(**{**kwargs, "keylist": [index]+kwargs.get("keylist",[])}) )
+                # change(value=, key_list=, action=, args=)
+                each.listeners.append(lambda **kwargs: self._change_from(**{**kwargs, "key_list": [index]+kwargs.get("key_list",[])}) )
     
     def _change_from(self, **kwargs):
         if self.is_deleted:
@@ -33,11 +33,12 @@ class TrackedList(TrackedData):
         
         for each in self.listeners:
             each({
-                **dict(keylist=[]),
+                **dict(key_list=[]),
                 **kwargs,
                 **dict(value=self.value),
             })
     
+    # minimum-spanning-method 1 of 1
     def splice(self, start, end=None, new_values=[]):
         if start < 0:
             start = len(self.value) + start
@@ -51,11 +52,13 @@ class TrackedList(TrackedData):
         self.value = front+[ Track(each) for each in new_values ]+back
         if not self.is_deleted:
             for each in self.listeners:
-                each(value=self, keylist=[], action="splice", args=[start, end, new_values])
+                each(value=self, key_list=[], action="splice", args=json.loads(json.dumps([start, end, new_values])))
         
         for each in middle:
             if isinstance(each, TrackedData):
                 each.is_deleted = True
+                # change(value=, key_list=, action=, args=)
+                each.listeners.append(lambda **kwargs: self._change_from(**{**kwargs, "key_list": [index]+kwargs.get("key_list",[])}) )
         
         return json.loads(json.dumps(middle))
     
@@ -79,6 +82,7 @@ class TrackedList(TrackedData):
     def __repr__(self, *args, **kwargs): return self.value.__repr__(*args, **kwargs)
     def __str__(self,  *args, **kwargs): return self.value.__str__(*args, **kwargs)
     def __eq__(self,   *args, **kwargs): return self.value.__eq__(*args, **kwargs)
+    def __reversed__(self, *args, **kwargs): return self.value.__reversed__(*args, **kwargs)
     
     def __add__(self, other_list):
         self.splice(len(self.value), len(self.value), list(other_list))
@@ -127,7 +131,114 @@ class TrackedList(TrackedData):
             self.splice(0, len(self.value), self.value)
 
 class TrackedDict(TrackedData):
-    pass
+    def __init__(self, value):
+        self.value = {}
+        self.is_deleted = False
+        for key, each_value in enumerate(value):
+            each_value = Track(each_value)
+            if isinstance(each_value, TrackedData):
+                self.each_value.append(each_value)
+                # change(value=, key_list=, action=, args=)
+                each_value.listeners.append(lambda **kwargs: self._change_from(**{**kwargs, "key_list": [key]+kwargs.get("key_list",[])}) )
+    
+    def _change_from(self, **kwargs):
+        if self.is_deleted:
+            return # do nothing
+        
+        for each in self.listeners:
+            each({
+                **dict(key_list=[]),
+                **kwargs,
+                **dict(value=self.value),
+            })
+    
+    # minimum-spanning-method 1 of 2
+    def delete(self, *keys):
+        for key in keys:
+            if isinstance(self.value[key], TrackedData):
+                self.value[key].is_deleted = True
+            del self.value[key]
+        if not self.is_deleted:
+            for each in self.listeners:
+                each(value=self, key_list=[], action="delete", args=list(keys))
+    
+    # minimum-spanning-method 2 of 2
+    def merge(self, other_dict, **kwargs):
+        other_dict = dict(other_dict)
+        other_dict.update(kwargs)
+        
+        for each_key, each_value in other_dict.items():
+            self.value[each_key] = Track(each_value)
+        
+        if not self.is_deleted:
+            for each_key, each_value in other_dict.items():
+                if isinstance(self.value[each_key], TrackedData):
+                    each_value.listeners.append(lambda **kwargs: self._change_from(**{**kwargs, "key_list": [each_key]+kwargs.get("key_list",[])}) )
+        
+            for each in self.listeners:
+                each(value=self, key_list=[], action="merge", args=json.loads(json.dumps([other_dict])))
+        
+        return self
+    
+    # basically inherit
+    def __getitem__ (self, *args, **kwargs): return self.value.__getitem__ (*args, **kwargs)
+    def __len__     (self, *args, **kwargs): return self.value.__len__     (*args, **kwargs)
+    def __contains__(self, *args, **kwargs): return self.value.__contains__(*args, **kwargs)
+    def __iter__    (self, *args, **kwargs): return self.value.__iter__    (*args, **kwargs)
+    def __repr__    (self, *args, **kwargs): return self.value.__repr__    (*args, **kwargs)
+    def __str__     (self, *args, **kwargs): return self.value.__str__     (*args, **kwargs)
+    def __eq__      (self, *args, **kwargs): return self.value.__eq__      (*args, **kwargs)
+    def __reversed__(self, *args, **kwargs): return self.value.__reversed__(*args, **kwargs)
+    def get   (self, *args, **kwargs): return self.value.get   (*args, **kwargs)
+    def values(self, *args, **kwargs): return self.value.values(*args, **kwargs)
+    def items (self, *args, **kwargs): return self.value.items (*args, **kwargs)
+    def keys  (self, *args, **kwargs): return self.value.keys  (*args, **kwargs)
+    
+    # minimal changes
+    def __json__(self, ): return self.value
+    def __add__(self, other_dict): self.merge(other_dict)
+    def __setitem__(self, key, value): self.merge({key:value})
+    def __delitem__(self, key): self.delete(key)
+    
+    # 
+    # methods
+    # 
+    def update(self, iterable, **kwargs):
+        other_dict = {}
+        if not hasattr(iterable, "keys") or not callable(iterable.keys):
+            for k, v in iterable:
+                other_dict[k] = v
+        self.merge(other_dict, **kwargs)
+        
+    def clear(self):
+        # delete all the keys
+        self.delete(*tuple(self.values.keys()))
+    
+    def copy(self):
+        return dict(self.value)
+    
+    def fromkeys(self, iterable, value=None):
+        new_items = { key:value for key in iterable }
+        self.merge(new_items)
+    
+    def pop(self, k, d=None):
+        if k not in self.value:
+            return d
+        else:
+            value = self.value[k]
+            del self[k]
+            return value
+    
+    def popitem(self):
+        removed_key, removed_value = self.value.popitem()
+        self.value[removed_key] = removed_value
+        del self.value[removed_key]
+        return removed_key, removed_value
+        
+    def setdefault(self, key, default=None):
+        if key not in self.value:
+            self.merge({ key: default})
+        return self.get(key, default)
 
 class Card:
     def __init__(self, update_function, **kwargs):
