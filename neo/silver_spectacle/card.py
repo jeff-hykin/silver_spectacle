@@ -1,5 +1,8 @@
 import json_fix
 import json
+from time import time as now
+
+unix_epoch = lambda : now()/1000
 
 def Track(value):
     value = json.loads(json.dumps(value))
@@ -24,7 +27,7 @@ class TrackedList(TrackedData):
             each = Track(each)
             if isinstance(each, TrackedData):
                 self.value.append(each)
-                # change(value=, key_list=, action=, args=)
+                # change(value=, key_list=, action=, args=, time=)
                 each.listeners.append(lambda **kwargs: self._change_from(**{**kwargs, "key_list": [index]+kwargs.get("key_list",[])}) )
     
     def _change_from(self, **kwargs):
@@ -52,7 +55,7 @@ class TrackedList(TrackedData):
         self.value = front+[ Track(each) for each in new_values ]+back
         if not self.is_deleted:
             for each in self.listeners:
-                each(value=self, key_list=[], action="splice", args=json.loads(json.dumps([start, end, new_values])))
+                each(value=self, key_list=[], action="splice", args=json.loads(json.dumps([start, end, new_values])), time=unix_epoch())
         
         for each in middle:
             if isinstance(each, TrackedData):
@@ -160,7 +163,7 @@ class TrackedDict(TrackedData):
             del self.value[key]
         if not self.is_deleted:
             for each in self.listeners:
-                each(value=self, key_list=[], action="delete", args=list(keys))
+                each(value=self, key_list=[], action="delete", args=list(keys), time=unix_epoch())
     
     # minimum-spanning-method 2 of 2
     def merge(self, other_dict, **kwargs):
@@ -176,7 +179,7 @@ class TrackedDict(TrackedData):
                     each_value.listeners.append(lambda **kwargs: self._change_from(**{**kwargs, "key_list": [each_key]+kwargs.get("key_list",[])}) )
         
             for each in self.listeners:
-                each(value=self, key_list=[], action="merge", args=json.loads(json.dumps([other_dict])))
+                each(value=self, key_list=[], action="merge", args=json.loads(json.dumps([other_dict])), time=unix_epoch())
         
         return self
     
@@ -245,8 +248,8 @@ class Card:
         self.id = id(self)
         self.timeline = []
         self.initial_data = kwargs
+        self.data = Track({})
         self.update_function = update_function # javascript string
-    
     
     def _as_html_(self):
         return ""
