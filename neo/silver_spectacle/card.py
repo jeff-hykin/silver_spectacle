@@ -258,15 +258,18 @@ class TrackedDict(TrackedData):
         return self.get(key, default)
 
 class Card:
+    associated_runtime = now()
+    
     def __init__(self, update_function, **kwargs):
         self.id = id(self)
         self.timeline = []
-        self.initial_data = kwargs
-        self.data = Track({})
-        self.update_function = update_function # javascript string
+        self.data = Track(kwargs)
     
     def _as_html_(self):
-        return ""
+        # should change as self.data changes
+        return f"""
+            
+        """
     
     def save(path):
         # convers self to HTML then saves that as a file
