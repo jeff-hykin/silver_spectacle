@@ -109,3 +109,8 @@ class ServerApi:
 
 
 server_api = ServerApi()
+
+@atexit.register
+def check_on_server():
+    # FIXME: kill the server on exit, unless there were unviewed/unsaved frontends
+    pass

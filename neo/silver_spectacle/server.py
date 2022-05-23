@@ -2,17 +2,15 @@
 from blissful_basics import print, flatten, to_pure, stringify, stats, product, countdown, is_generator_like, now, large_pickle_save, large_pickle_load, FS, Object
 from aiohttp import web
 import socketio 
-import sys
+import asyncio
+
 import argparse 
 import math
-import asyncio
+import json
 from random import random, sample, choices
 from time import time as now
-import sys
-import json
-from os.path import isabs, isfile, isdir, join, dirname, basename, exists, splitext, relpath
 
-__dir__ = dirname(__file__)
+__dir__ = FS.dirname(__file__)
 
 
 # 
@@ -57,12 +55,6 @@ with print.indent:
 # tools
 # 
 with print.indent:
-    def run_with(*args, **kwargs):
-        def decorator(function_being_wrapped):
-            # run immediately
-            function_being_wrapped(*args, **kwargs)
-            return function_being_wrapped
-        return decorator
     def json_post(*args, **kwargs):
         @routes.post(*args, **kwargs)
         async def wrapper(request : web.Request):
@@ -81,67 +73,68 @@ with print.indent:
 # Routes
 # 
 # 
-app.router.add_static('/files', __dir__+"/files")
+with print.indent:
+    app.router.add_static('/files', __dir__+"/files")
 
-@json_post('/ping')
-async def ping():
-    return "pong"
+    @json_post('/ping')
+    async def ping():
+        return "pong"
 
-@json_post('/frontend/stop')
-async def stop():
-    await sio.emit('server:status', '"stopping"')
-    schedule_shutdown()
-    return "stopping"
+    @json_post('/frontend/stop')
+    async def stop():
+        await sio.emit('server:status', '"stopping"')
+        schedule_shutdown()
+        return "stopping"
 
-@json_post('/frontend/web_received_data')
-async def web_received_data():
-    self.last_time_data_was_viewed = now()
-    return True
-
-@json_post('/runtime/was_data_seen')
-async def was_data_seen():
-    # if data was viewed more recently than it was updated
-    if self.last_time_data_was_viewed >= self.last_time_data_was_updated:
+    @json_post('/frontend/web_received_data')
+    async def web_received_data():
+        self.last_time_data_was_viewed = now()
         return True
-    else:
-        return False
 
-@json_post('/runtime/spectacle_init')
-async def spectacle_init(*, class_id, instance_id, value):
-    self.spectacle_instances[f"{instance_id}{class_id}"] = value
-    self.last_time_data_was_updated = now()
+    @json_post('/runtime/was_data_seen')
+    async def was_data_seen():
+        # if data was viewed more recently than it was updated
+        if self.last_time_data_was_viewed >= self.last_time_data_was_updated:
+            return True
+        else:
+            return False
 
-@json_post('/runtime/spectacle_update')
-async def spectacle_update(*, class_id, instance_id, path, action, args, time):
-    await sio.emit(
-        f'spectacle:update:{instance_id}{class_id}',
-        json.dumps(dict(
-            path=path,
-            action=action,
-            args=args,
-            time=time,
-        ))
-    )
+    @json_post('/runtime/spectacle_init')
+    async def spectacle_init(*, class_id, instance_id, value):
+        self.spectacle_instances[f"{instance_id}{class_id}"] = value
+        self.last_time_data_was_updated = now()
 
-@routes.post('/runtime/large/set/{content_type}/{data_id}')
-async def set_large_data(request : web.Request):
-    large_data_id = request.match_info["data_id"]
-    # save the content_type
-    self.large_data_content_type[large_data_id] = request.match_info["content_type"].replace(r"%2F", "/")
-    # save in ram
-    post_result = await request.post()
-    large_file = post_result.get("file")
-    if large_file is not None:
-        self.large_data[large_data_id] = large_file.file.read()
-    return web.Response(text="null")
+    @json_post('/runtime/spectacle_update')
+    async def spectacle_update(*, class_id, instance_id, path, action, args, time):
+        await sio.emit(
+            f'spectacle:update:{instance_id}{class_id}',
+            json.dumps(dict(
+                path=path,
+                action=action,
+                args=args,
+                time=time,
+            ))
+        )
 
-@routes.get('/frontend/large/get/{data_id}')
-async def get_large_data(request : web.Request):
-    large_data_id = request.match_info["data_id"]
-    return web.Response(
-        content_type=self.large_data_content_type[large_data_id],
-        body=self.large_data[large_data_id],
-    )
+    @routes.post('/runtime/large/set/{content_type}/{data_id}')
+    async def set_large_data(request : web.Request):
+        large_data_id = request.match_info["data_id"]
+        # save the content_type
+        self.large_data_content_type[large_data_id] = request.match_info["content_type"].replace(r"%2F", "/")
+        # save in ram
+        post_result = await request.post()
+        large_file = post_result.get("file")
+        if large_file is not None:
+            self.large_data[large_data_id] = large_file.file.read()
+        return web.Response(text="null")
+
+    @routes.get('/frontend/large/get/{data_id}')
+    async def get_large_data(request : web.Request):
+        large_data_id = request.match_info["data_id"]
+        return web.Response(
+            content_type=self.large_data_content_type[large_data_id],
+            body=self.large_data[large_data_id],
+        )
 
 # 
 # start server
