@@ -8,6 +8,7 @@
 
 
 import * as Elementalist from "https://deno.land/x/elementalist@0.0.14/main/main.mjs";
+import { zip, enumerate, count, permute, combinations, wrapAroundGet } from "https://deno.land/x/good@0.5.12/array.js"
 let html = Elementalist.html
 
 export const silverSpectacle = {
@@ -29,22 +30,27 @@ export const silverSpectacle = {
             red: "#f07178",
             orange: "#f78c6c",
         },
+        colorFor(index) {
+            const colorList = Object.values(silverSpectacle.theme.colors)
+            return wrapAroundGet(index, colorList)
+        },
     },
     classes: {},
     elements: {},
     topLevelElements: {},
     useDefaultContainerFor: {},
     deletedElements: {},
+    dataFor: {},
     register({ spectacleClassId, init, onDataChange }) {
         silverSpectacle.classes[spectacleClassId] = { spectacleClassId, init, onDataChange }
     },
     async createSpectacle({ spectacleClassId, instanceId, topLevel, useDefaultContainer, data, }) {
-        const element = await silverSpectacle.spectacleClasses[spectacleClassId].init(data)
         const fullId = `${instanceId}${spectacleClassId}`
-        silverSpectacle.elements[fullId] = element
+        silverSpectacle.dataFor[fullId] = data
         silverSpectacle.useDefaultContainerFor[fullId] = useDefaultContainer
+        silverSpectacle.elements[fullId] = await silverSpectacle.spectacleClasses[spectacleClassId].init({ instanceId, data, })
         if (topLevel) {
-            silverSpectacle.topLevelElements[fullId] = element
+            silverSpectacle.topLevelElements[fullId] = silverSpectacle.elements[fullId]
         }
         // attach listener
         silverSpectacle.socket.on(`spectacle:update:${fullId}`, async (input)=>{
@@ -60,7 +66,8 @@ export const silverSpectacle = {
             // FIXME: add "am-i-up-to-date" handling
 
             try {
-                await silverSpectacle.classes.onDataChange({ path, action, args, time })
+                // FIXME: apply the changes (splice, merge, delete) to data
+                await silverSpectacle.classes.onDataChange({ instanceId, data, path, action, args, time })
             } catch (error) {
                 // TODO: make a toast notification for this
                 console.warn(error, { instanceId, classId, path, action, args, time })

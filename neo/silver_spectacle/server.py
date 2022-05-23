@@ -75,6 +75,7 @@ with print.indent:
 # 
 with print.indent:
     app.router.add_static('/files', __dir__+"/files")
+    app.router.add_static('/imports', __dir__+"/imports")
 
     @json_post('/ping')
     async def ping():
@@ -92,6 +93,14 @@ with print.indent:
         return True
 
     @json_post('/runtime/was_data_seen')
+    async def was_data_seen():
+        # if data was viewed more recently than it was updated
+        if self.last_time_data_was_viewed >= self.last_time_data_was_updated:
+            return True
+        else:
+            return False
+    
+    @json_post('/runtime/add_')
     async def was_data_seen():
         # if data was viewed more recently than it was updated
         if self.last_time_data_was_viewed >= self.last_time_data_was_updated:

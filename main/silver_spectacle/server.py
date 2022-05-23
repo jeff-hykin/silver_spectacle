@@ -1187,7 +1187,7 @@ async def index(request : web.Request):
                         quickScatter: (args) => {
                             let data = args[0]
                             if (!(data instanceof Array)) {
-                                throw Exception(`quickLine needs an array [[x1,y1],[x2,y2] ...] but it got this instead:\n    ${JSON.stringify(data)}`)
+                                throw Exception(`quickScatter needs an array [[x1,y1],[x2,y2] ...] but it got this instead:\n    ${JSON.stringify(data)}`)
                             }
                             // if single numbers instead of pairs
                             if (! _.isNaN(_.toNumber(data[0])) ) {
