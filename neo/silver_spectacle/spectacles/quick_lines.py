@@ -7,11 +7,9 @@ from silver_spectacle.runtime import Spectacle
 class QuckLine:
     script = """<script>
         import { silverSpectacle } from "https://deno.land/x/silver_spectacle@0.0.1/main.js"
-        import { createChart, convertXYData, generateLabelsFor } from "https://deno.land/x/silver_spectacle@0.0.1/imports/7f7bf82e7f05c2d440c9dd668e16c1b5.js"
+        import { createChart, convertXYData, generateLabelsFor } from "https://deno.land/x/silver_spectacle@0.0.1/imports/96b4defae9008199461a506159967e93.js"
         import { merge } from "https://deno.land/x/good@0.5.12/object.js"
 
-        // FIXME: rehash chartjs
-        
         const quickLinesConfig = ({lines, verticalLabel=null, horizonalLabel=null, title=null, lineColor={}, options={}}) => {
             // generate datasets
             const datasets = []
@@ -84,7 +82,6 @@ class QuckLine:
             
             // change the element when data changes
             async onDataChange({ instanceId, data, path, action, args, time }) {
-                // FIXME: apply change to data
                 // change the element somehow when the data changes
                 const element = elements[instanceId]
                 const oldConfig = configFor[instanceId]
@@ -101,7 +98,7 @@ class QuckLine:
     </script>"""
     
     def __init__(self, lines, vertical_label=None, horizonal_label=None, title=None, line_color={}, options={}):
-        self.data.merge(dict(
+        self.data.update(dict(
             lines=lines,
             title=title,
             verticalLabel=vertical_label,
