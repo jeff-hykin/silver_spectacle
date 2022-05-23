@@ -2,7 +2,9 @@ import json_fix
 import json
 from time import time as now
 from blissful_basics import print, flatten, to_pure, stringify, stats, product, countdown, is_generator_like, now, large_pickle_save, large_pickle_load, FS, Object
+from super_hash import super_hash
 from runtime_setup import server
+from random import random
 
 unix_time = lambda : int(now()/1000)
 
@@ -43,7 +45,6 @@ class TrackedList(TrackedData):
     def _change_from(self, **kwargs):
         if self.is_deleted:
             return # do nothing
-        
         for each in self.listeners:
             each({
                 **dict(path=[]),
@@ -147,6 +148,7 @@ class TrackedDict(TrackedData):
     def __init__(self, value):
         self.value = {}
         self.is_deleted = False
+        self._change_indicator = random()
         for key, each_value in enumerate(value):
             each_value = Track(each_value)
             if isinstance(each_value, TrackedData):
@@ -158,6 +160,7 @@ class TrackedDict(TrackedData):
         if self.is_deleted:
             return # do nothing
         
+        self._change_indicator = random()
         for each in self.listeners:
             each({
                 **dict(path=[]),
@@ -167,6 +170,7 @@ class TrackedDict(TrackedData):
     
     def _got_deleted(self):
         self.is_deleted = True
+        self._change_indicator = random()
         for each in self.value.values():
             if isinstance(each, TrackedData):
                 each._got_deleted()
@@ -176,8 +180,10 @@ class TrackedDict(TrackedData):
         for key in keys:
             if isinstance(self.value[key], TrackedData):
                 self.value[key].is_deleted = True
+                self.value[key]._got_deleted()
             del self.value[key]
         if not self.is_deleted:
+            self._change_indicator = random()
             for each in self.listeners:
                 each(value=self, path=[], action="delete", args=list(keys), time=unix_time())
     
@@ -190,6 +196,7 @@ class TrackedDict(TrackedData):
             self.value[each_key] = Track(each_value)
         
         if not self.is_deleted:
+            self._change_indicator = random()
             for each_key, each_value in other_dict.items():
                 if isinstance(self.value[each_key], TrackedData):
                     each_value.listeners.append(lambda **kwargs: self._change_from(**{**kwargs, "path": [each_key]+kwargs.get("path",[])}) )
@@ -260,14 +267,123 @@ class TrackedDict(TrackedData):
         return self.get(key, default)
 
 class Frontend:
-    def __init__(self, title=None, id=None):
+    def __init__(self, title=None):
         self.title = title
-        self.id = id or unix_time()
-        self.spectacles = []
+        self.spectacle_classes = {}
+        self.spectacles = {}
+        self._html_cache = None
+        self._html_change_indicator = None
+        # FIXME: contact the server to create a new frontend page
     
     def add(self, *spectacles):
         for each in spectacles:
-            self.spectacles.append(each.)
+            self.spectacle_classes[each.class_id] = each
+            self.spectacles[f'{each.instance_id}{each.class_id}'] = each
+        return self
+    
+    def _get_html_change_indicator(self):
+        change_indicator = ""
+        for full_id, each_value in self.spectacles.items():
+            change_indicator += f"{full_id}{each_value.data._change_indicator}"
+        return super_hash(change_indicator)
+    
+    @property
+    def as_html(self):
+        if self._html_cache and self._get_html_change_indicator() == self._html_change_indicator:
+            return self._html_cache
+        html = """
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <meta http-equiv="X-UA-Compatible" content="IE=edge">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title></title>
+                <style>
+                    @keyframes silver-spectacle-loader-dash {
+                        0% {
+                            stroke-dasharray: 1, 95;
+                            stroke-dashoffset: 0;
+                        }
+                        50% {
+                            stroke-dasharray: 85, 95;
+                            stroke-dashoffset: -25;
+                        }
+                        100% {
+                            stroke-dasharray: 85, 95;
+                            stroke-dashoffset: -93;
+                        }
+                    }
+                    @keyframes silver-spectacle-loader-rotate {
+                        0% {
+                            transform: rotate(0deg);
+                        }
+                        100% {
+                            transform: rotate(360deg);
+                        }
+                    }
+                </style>
+            </head>
+            <body>
+                <div id="silver-spectacle-initial-loader" style="position: fixed; top: 0; left: 0px; z-index: 1100; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); display: block; -webkit-transition: ease-in-out 0.1s; -moz-transition: ease-in-out 0.1s; -o-transition: ease-in-out 0.1s; -ms-transition: ease-in-out 0.1s; transition: ease-in-out 0.1s; -webkit-box-sizing: border-box; -moz-box-sizing: border-box; -o-box-sizing: border-box; -ms-box-sizing: border-box; box-sizing: border-box; " >
+                    <span style="-webkit-box-sizing: border-box; -moz-box-sizing: border-box; -o-box-sizing: border-box; -ms-box-sizing: border-box; box-sizing: border-box; display: block; width: 48px; height: 48px; padding: 4px; background-color: #ffffff; -webkit-border-radius: 100%; -moz-border-radius: 100%; -o-border-radius: 100%; -ms-border-radius: 100%; border-radius: 100%; position: absolute; left: 50%; margin-left: -24px; top: -50px; -webkit-transition: ease-in-out 0.1s; -moz-transition: ease-in-out 0.1s; -o-transition: ease-in-out 0.1s; -ms-transition: ease-in-out 0.1s; transition: ease-in-out 0.1s; -webkit-box-shadow: #000 0px 5px 10px -5px; -moz-box-shadow: #000 0px 5px 10px -5px; -o-box-shadow: #000 0px 5px 10px -5px; -ms-box-shadow: #000 0px 5px 10px -5px; box-shadow: #000 0px 5px 10px -5px; top: 18%;" >
+                        <svg width="40" height="40" version="1.1" xmlns="http://www.w3.org/2000/svg" style="overflow: hidden; -webkit-box-sizing: border-box; -moz-box-sizing: border-box; -o-box-sizing: border-box; -ms-box-sizing: border-box; box-sizing: border-box; width: 40; height: 40; fill: transparent; stroke: #1a73e8; stroke-width: 5; animation: silver-spectacle-loader-dash 2s ease infinite, silver-spectacle-loader-rotate 2s linear infinite;">
+                            <circle cx="20" cy="20" r="15">
+                        </svg>
+                    </span>
+                </div>
+            </body>
+        """
+        
+        # spectacle classes/library setup
+        for each_key, each_value in self.spectacle_classes.items():
+            html += each_value.style + "\n" + each_value.script + "\n"
+        
+        # spectacle instances
+        all_instances = """
+            <script>
+                import { silverSpectacle } from "https://deno.land/x/silver_spectacle@0.0.1/main.js"
+        """
+        # function to handle recursion
+        def create_children(each_value):
+            code = ""
+            for each in each_value.nested_spectacles:
+                # recursive (basecase = nested_spectacles is empty)
+                code += create_children(each_value) + """
+                    silverSpectacle.createSpectacle({
+                        spectacleClassId: '"""+each_value.class_id+"""',
+                        instanceId: '"""+each_value.instance_id+"""',
+                        topLevel: false,
+                        useDefaultContainer: false,
+                        data: """+json.dumps(each_value.data)+""",
+                    })
+                """
+        
+        for each_key, each_value in self.spectacles.items():
+            try:
+                # do nested ones first
+                all_instances += create_children(each_value.nested_spectacles)
+                # top level ones are the only one
+                all_instances += """
+                    silverSpectacle.createSpectacle({
+                        spectacleClassId: '"""+each_value.class_id+"""',
+                        instanceId: '"""+each_value.instance_id+"""',
+                        topLevel: true,
+                        useDefaultContainer: """+("true" if each.use_default_container else "false")+""",
+                        data: """+json.dumps(each_value.data)+""",
+                    })
+                """
+            except Exception as error:
+                pass
+        all_instances += """
+            silverSpectacle.renderAll()
+        """
+        html += all_instances+"            </script>\n</html>"
+        self._html_cache = html
+        return html
+    
+    def save(self, path):
+        FS.write(data=self.as_html, to=path)
 
 class_id_helper = Object(current_id=unix_time())
 def Spectacle(*args, **kwargs):
@@ -335,27 +451,28 @@ def Spectacle(*args, **kwargs):
             self.instance_id = unix_time()
             self.class_id = class_being_wrapped.class_id
             self.timeline = []
-            self.data = Track()
+            self.data = Track({})
+            self.nested_spectacles = []
+            self.use_default_container = True
             output = original_init(self, *args, **kwargs)
             # ping the server with the inital data
             server_api.spectacle_init(class_id=self.class_id, instance_id=self.instance_id, value=self.data)
+            # ping the server with every update
+            self.data.listeners.append(lambda **kwargs: server_api.spectacle_update(**kwargs)) # kwargs=dict(value=, path=, action=, args=, time=)
             return output
         class_being_wrapped.__init__ = new_init
         
         # 
         # default methods
         # 
-        if not hasattr(class_being_wrapped, "as_html"):
-            def as_html(self, path):
-                # FIXME: use standalone Frontend to generate this
-                pass
+        if not hasattr(class_being_wrapped, "generate_html"):
+            def generate_html(self):
+                return Frontend().add(self).as_html
         
         if not hasattr(class_being_wrapped, "save"):
             def save(self, path):
-                # FIXME: use FS
-                # FIXME: use as_html
-                with open(path, 'w') as the_file:
-                    the_file.write(str(self._as_html_()))
+                html = self.generate_html()
+                FS.write(data=html, to=path)
         
         # end
         return class_being_wrapped

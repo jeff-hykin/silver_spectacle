@@ -108,17 +108,18 @@ async def was_data_seen():
 
 @json_post('/runtime/spectacle_init')
 async def spectacle_init(*, class_id, instance_id, value):
-    self.spectacle_instances[f"{class_id}:{instance_id}"] = value
+    self.spectacle_instances[f"{instance_id}{class_id}"] = value
     self.last_time_data_was_updated = now()
 
 @json_post('/runtime/spectacle_update')
-async def spectacle_update(*, class_id, instance_id, path, action, args):
+async def spectacle_update(*, class_id, instance_id, path, action, args, time):
     await sio.emit(
-        f'spectacle:update:{class_id}:{instance_id}',
+        f'spectacle:update:{instance_id}{class_id}',
         json.dumps(dict(
             path=path,
             action=action,
-            args=args
+            args=args,
+            time=time,
         ))
     )
 

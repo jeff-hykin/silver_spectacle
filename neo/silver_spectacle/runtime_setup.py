@@ -92,8 +92,8 @@ class ServerApi:
     def spectacle_init(self, *, class_id, instance_id, value):
         self.contact_server(endpoint="runtime/spectacle_init", data=dict(class_id=class_id, instance_id=instance_id, value=value))
     
-    def spectacle_update(self, *, class_id, instance_id, value, path, action, args):
-        self.contact_server(endpoint="runtime/spectacle_update", data=dict(class_id=class_id, instance_id=instance_id, path=path, action=action, args=args))
+    def spectacle_update(self, *, class_id, instance_id, value, path, action, args, time):
+        self.contact_server(endpoint="runtime/spectacle_update", data=dict(class_id=class_id, instance_id=instance_id, path=path, action=action, args=args, time=time))
     
     def register_large(self, content_type, data_as_bytes):
         self.ensure_is_running()

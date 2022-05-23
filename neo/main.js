@@ -17,51 +17,52 @@ export const silverSpectacle = {
         reconnectionDelayMax : 5000,
         reconnectionAttempts: Infinity,
     }),
-    spectacleClasses: {},
+    classes: {},
+    elements: {},
+    topLevelElements: {},
+    useDefaultContainerFor: {},
+    deletedElements: {},
     register({ spectacleClassId, init, onDataChange }) {
-        silverSpectacle.spectacleClasses[spectacleClassId] = { spectacleClassId, init, onDataChange }
-        silverSpectacle.socket.on(`dataUpdate`, async (input)=>{
-            var { spectacleClassId, instanceId, data, path, action, args } = JSON.parse(input)
-            if (card) {
-                const cardElement = card.element
-                if (input.action == "send") {
-                    try {
-                        cardElement.receive(input.data)
-                    } catch (error) {
-                        silverSpectacle.log(`When data was being sent to card<br>id: ${input.cardId}<br>there was an error.<br>The data was: ${JSON.stringify(input).slice(0,1000)}`)
-                        console.debug(error)
-                    }
-                }
+        silverSpectacle.classes[spectacleClassId] = { spectacleClassId, init, onDataChange }
+    },
+    async createSpectacle({ spectacleClassId, instanceId, topLevel, useDefaultContainer, data, }) {
+        const element = await silverSpectacle.spectacleClasses[spectacleClassId].init(data)
+        const fullId = `${instanceId}${spectacleClassId}`
+        silverSpectacle.elements[fullId] = element
+        silverSpectacle.useDefaultContainerFor[fullId] = useDefaultContainer
+        if (topLevel) {
+            silverSpectacle.topLevelElements[fullId] = element
+        }
+        // attach listener
+        silverSpectacle.socket.on(`spectacle:update:${fullId}`, async (input)=>{
+            // ignore inputs for deleted elements
+            if (silverSpectacle.deletedElements[fullId]) {
+                return
             }
-            // TODO: add more error handling/logging
+            const { path, action, args, time } = JSON.parse(input)
+            // let server know data was received
+            // TODO: debounce this
             post({ to: window.location.origin+"/web_received_data" }).catch(errorObject=>null)
+
+            // FIXME: add "am-i-up-to-date" handling
+
+            try {
+                await silverSpectacle.classes.onDataChange({ path, action, args, time })
+            } catch (error) {
+                // TODO: make a toast notification for this
+                console.warn(error, { instanceId, classId, path, action, args, time })
+            }
         })
     },
-    async createSpectacle({ spectacleClassId, data }) {
-        silverSpectacle.spectacleClasses[spectacleClassId].init(data)
+    async renderAll() {
+        document.body = document.createElement("body")
+        for (const [fullId, element] of Object.entries(silverSpectacle.topLevelElements)) {
+            if (!silverSpectacle.useDefaultContainerFor[fullId]) {
+                document.body.appendChild(element)
+            } else {
+                // FIXME: create default container
+                document.body.appendChild(element)
+            }
+        }
     }
 }
-
-
-// TODO
-
-
-silverSpectacle.register({
-    spectacleClassId: ,
-    async init({instanceId, data}) {
-        elements[instanceId] = html`<div> replace me with stuff </div>`
-        
-        // return an html element
-        return elements[instanceId]
-    },
-    // change the element when data changes
-    async onDataChange({ instanceId, value, path, action, args, time }) {
-        // change the element somehow when the data changes
-        const element = elements[instanceId]
-    }
-}
-
-window.addEventListener("load", ()=>{
-    
-})
-
