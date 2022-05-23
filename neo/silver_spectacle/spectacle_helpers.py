@@ -1,8 +1,10 @@
 import json_fix
 import json
 from time import time as now
+from blissful_basics import print, flatten, to_pure, stringify, stats, product, countdown, is_generator_like, now, large_pickle_save, large_pickle_load, FS, Object
+from runtime_setup import server
 
-unix_epoch = lambda : now()/1000
+unix_time = lambda : int(now()/1000)
 
 def Track(value):
     value = json.loads(json.dumps(value))
@@ -63,7 +65,7 @@ class TrackedList(TrackedData):
         self.value = front+[ Track(each) for each in new_values ]+back
         if not self.is_deleted:
             for each in self.listeners:
-                each(value=self, path=[], action="splice", args=json.loads(json.dumps([start, end, new_values])), time=unix_epoch())
+                each(value=self, path=[], action="splice", args=json.loads(json.dumps([start, end, new_values])), time=unix_time())
         
         for each in middle:
             if isinstance(each, TrackedData):
@@ -177,7 +179,7 @@ class TrackedDict(TrackedData):
             del self.value[key]
         if not self.is_deleted:
             for each in self.listeners:
-                each(value=self, path=[], action="delete", args=list(keys), time=unix_epoch())
+                each(value=self, path=[], action="delete", args=list(keys), time=unix_time())
     
     # minimum-spanning-method 2 of 2
     def merge(self, other_dict, **kwargs):
@@ -193,7 +195,7 @@ class TrackedDict(TrackedData):
                     each_value.listeners.append(lambda **kwargs: self._change_from(**{**kwargs, "path": [each_key]+kwargs.get("path",[])}) )
         
             for each in self.listeners:
-                each(value=self, path=[], action="merge", args=json.loads(json.dumps([other_dict])), time=unix_epoch())
+                each(value=self, path=[], action="merge", args=json.loads(json.dumps([other_dict])), time=unix_time())
         
         return self
     
@@ -257,27 +259,107 @@ class TrackedDict(TrackedData):
             self.merge({ key: default})
         return self.get(key, default)
 
-class Card:
-    associated_runtime = now()
+class Frontend:
+    def __init__(self, title=None, id=None):
+        self.title = title
+        self.id = id or unix_time()
+        self.spectacles = []
     
-    def __init__(self, update_function, **kwargs):
-        self.id = id(self)
-        self.timeline = []
-        self.data = Track(kwargs)
+    def add(self, *spectacles):
+        for each in spectacles:
+            self.spectacles.append(each.)
+
+class_id_helper = Object(current_id=unix_time())
+def Spectacle(*args, **kwargs):
+    """
+    @Spectacle()
+    class YourChart:
+        script = '''<script>
+            ...
+            let class_id = "'''+Spectacle.get_class_id()+'''"
+            ...
+        </script>'''
+    """
     
-    def _as_js_(self):
-        # should change as self.data changes
-        return """function ({id, data}) {
-            const runtimeData = {}
-            const element = document.createElement("div")
-            element.onDataChange = function({ value, path, action, args, time }) {
-                // change the element somehow when the data changes
-            }
-            return element
-        }"""
+    def class_wrapper(class_being_wrapped)
+        # 
+        # class properties
+        # 
+        class_being_wrapped.class_id = class_id_helper.current_id
+        if not hasattr(class_being_wrapped, 'style'):
+            class_being_wrapped.style = """<style>
+                /* css styles go here */
+            </style>"""
+        
+        if not hasattr(class_being_wrapped, 'script'):
+            raise Exception('''
+            
+                The class '''+str(class_being_wrapped)+''' doesn't have a `script` attribute, please make sure to define one
+                Example:
+                    @Spectacle()
+                    class '''+str(class_being_wrapped.__name__)+''':
+                        script = """<script>
+                            import { silverSpectacle } from "https://deno.land/x/silver_spectacle@0.0.1/main.js"
+                            import { Elemental } from "https://deno.land/x/elementalist@0.0.14/main/main.mjs"
+                            let html = Elemental() // see: https://deno.land/x/elementalist
+                        
+                            const elements = {}
+                            silverSpectacle.register({
+                                spectacleClassId: """+f'"{Spectacle.get_class_id()}"'+""",
+                            
+                                // create an element
+                                async init({instanceId, data}) {
+                                    elements[instanceId] = html`<div> replace me with stuff </div>`
+                                
+                                    // return an html element
+                                    return elements[instanceId]    
+                                },
+                                
+                                // change the element when data changes
+                                async onDataChange({ instanceId, value, path, action, args, time }) {
+                                    // change the element somehow when the data changes
+                                    const element = elements[instanceId]
+                                }
+                            })
+                        </script>"""
+                        
+                        def __init__(self, arg1_data):
+                            self.data["arg1_data"] = arg1_data
+            ''')
+        
+        # 
+        # __init__
+        # 
+        original_init = class_being_wrapped.__init__
+        def new_init(self, *args, **kwargs):
+            self.instance_id = unix_time()
+            self.class_id = class_being_wrapped.class_id
+            self.timeline = []
+            self.data = Track()
+            output = original_init(self, *args, **kwargs)
+            # ping the server with the inital data
+            server_api.spectacle_init(class_id=self.class_id, instance_id=self.instance_id, value=self.data)
+            return output
+        class_being_wrapped.__init__ = new_init
+        
+        # 
+        # default methods
+        # 
+        if not hasattr(class_being_wrapped, "as_html"):
+            def as_html(self, path):
+                # FIXME: use standalone Frontend to generate this
+                pass
+        
+        if not hasattr(class_being_wrapped, "save"):
+            def save(self, path):
+                # FIXME: use FS
+                # FIXME: use as_html
+                with open(path, 'w') as the_file:
+                    the_file.write(str(self._as_html_()))
+        
+        # end
+        return class_being_wrapped
     
-    def save(path):
-        # converts self to HTML then saves that as a file
-        # TODO: force existance of path
-        with open(path, 'w') as the_file:
-            the_file.write(str(self._as_html_()))
+    return class_wrapper
+# class-method-like
+Spectacle.get_class_id = lambda: str(class_being_wrapped.class_id)

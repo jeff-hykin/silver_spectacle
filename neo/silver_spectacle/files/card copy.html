@@ -8,15 +8,17 @@
     //# sourceMappingURL=socket.io.min.js.map
 </script>
 <script>
+    window.silverSpectacle = {
+        socket: io({
+            reconnection: true,
+            reconnectionDelay: 250,
+            reconnectionDelayMax : 5000,
+            reconnectionAttempts: Infinity,
+        }),
+        dataUpdateCallbacks: [],
+    }
     
-    window.socket = io({
-        reconnection: true,
-        reconnectionDelay: 250,
-        reconnectionDelayMax : 5000,
-        reconnectionAttempts: Infinity,
-    })
-    
-    socket.on("data", async (input)=>{
+    silverSpectacle.socket.on("dataUpdate", async (input)=>{
         input = JSON.parse(input)
         const card = silverSpectacle.cards[input.cardId]
         if (card) {
