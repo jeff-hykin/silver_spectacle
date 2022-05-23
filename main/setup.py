@@ -29,6 +29,9 @@ setuptools.setup(
         'aiohttp >= 3.7.4',
         'python-socketio >= 5.3.0',
         'requests >= 2.26.0',
+        # for neo:
+        # 'super-hash >= 1.1.0'
+        # 'blissful-basics >= 0.0.2'
     ],
     classifiers=[
         # examples:

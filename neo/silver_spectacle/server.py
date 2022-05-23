@@ -31,6 +31,7 @@ with print.indent:
         last_time_data_was_updated = now(),
         spectacle_instances = {},
         large_data = {},
+        large_data_content_type = {},
     )
 
 # 
@@ -123,9 +124,9 @@ async def spectacle_update(*, class_id, instance_id, path, action, args):
 
 @routes.post('/runtime/large/set/{content_type}/{data_id}')
 async def set_large_data(request : web.Request):
-    content_type = request.match_info["content_type"]
-    content_type = content_type.replace(r"%2F", "/")
     large_data_id = request.match_info["data_id"]
+    # save the content_type
+    self.large_data_content_type[large_data_id] = request.match_info["content_type"].replace(r"%2F", "/")
     # save in ram
     post_result = await request.post()
     large_file = post_result.get("file")
@@ -133,13 +134,11 @@ async def set_large_data(request : web.Request):
         self.large_data[large_data_id] = large_file.file.read()
     return web.Response(text="null")
 
-@routes.get('/frontend/large/get/{content_type}/{data_id}')
+@routes.get('/frontend/large/get/{data_id}')
 async def get_large_data(request : web.Request):
-    content_type = request.match_info["content_type"]
-    content_type = content_type.replace(r"%2F", "/")
     large_data_id = request.match_info["data_id"]
     return web.Response(
-        content_type=content_type,
+        content_type=self.large_data_content_type[large_data_id],
         body=self.large_data[large_data_id],
     )
 

@@ -4,6 +4,7 @@ import subprocess
 import time
 import sys
 import atexit
+from super_hash import super_hash
 
 from blissful_basics import print, flatten, to_pure, stringify, stats, product, countdown, is_generator_like, now, large_pickle_save, large_pickle_load, FS, Object
 
@@ -94,15 +95,15 @@ class ServerApi:
     def spectacle_update(self, *, class_id, instance_id, value, path, action, args):
         self.contact_server(endpoint="runtime/spectacle_update", data=dict(class_id=class_id, instance_id=instance_id, path=path, action=action, args=args))
     
-    def register_large(self, data_format, data_id, data_as_bytes):
-        ensure_is_running()
-        base_url = self.base_url
-        data_format = data_format.replace("/", r"%2F")
+    def register_large(self, content_type, data_as_bytes):
+        self.ensure_is_running()
+        data_id = super_hash((content_type, data_as_bytes))
+        content_type = content_type.replace("/", r"%2F")
         return requests.post(
-            f'{base_url}/runtime/large/set/{data_format}/{data_id}',
+            f'{self.base_url}/runtime/large/set/{content_type}/{data_id}',
             files={
                 'file': ("large_file", data_as_bytes),
-                'Content-Type': data_format,
+                'Content-Type': content_type,
             },
         )
 
