@@ -2,5 +2,7 @@
 - handle the missing-change-data on the frontend
 - handle the missing-change-data on the server side
 - toast notifications on the frontend
-- recreate the default spectacles
+- recreate the chart spectacles
 - create the grid values
+- recreate quick image
+- add variance plot
