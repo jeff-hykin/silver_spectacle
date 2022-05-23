@@ -1,4 +1,4 @@
-from silver_spectacle.card import Card
+from silver_spectacle.runtime import Spectacle
 from os.path import isabs, isfile, isdir, join, dirname, basename, exists, splitext, relpath
 
 try:
